@@ -316,7 +316,7 @@ internal class KtFirCallResolver(
                 extensionReceiverValue = explicitReceiverValue
             }
             return KtPartiallyAppliedSymbol(
-                unsubstitutedKtSignature.substitute(substitutor),
+                with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
                 dispatchReceiverValue,
                 extensionReceiverValue,
             )
@@ -334,7 +334,7 @@ internal class KtFirCallResolver(
                 )
             } else {
                 KtPartiallyAppliedSymbol(
-                    unsubstitutedKtSignature.substitute(substitutor),
+                    with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
                     candidate.dispatchReceiverValue?.receiverExpression?.toKtReceiverValue(),
                     candidate.chosenExtensionReceiverValue?.receiverExpression?.toKtReceiverValue(),
                 )
@@ -349,7 +349,7 @@ internal class KtFirCallResolver(
                 createKtPartiallyAppliedSymbolForImplicitInvoke(fir.dispatchReceiver, fir.extensionReceiver, explicitReceiverKind)
             } else {
                 KtPartiallyAppliedSymbol(
-                    unsubstitutedKtSignature.substitute(substitutor),
+                    with(analysisSession) { unsubstitutedKtSignature.substitute(substitutor) },
                     fir.dispatchReceiver.toKtReceiverValue(),
                     fir.extensionReceiver.toKtReceiverValue()
                 )
@@ -605,7 +605,7 @@ internal class KtFirCallResolver(
         val substitutor = createConeSubstitutorFromTypeArguments() ?: return null
         val ktSignature = variableSymbol.toKtSignature()
         return KtPartiallyAppliedSymbol(
-            ktSignature.substitute(substitutor.toKtSubstitutor()),
+            with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
             dispatchReceiver.toKtReceiverValue(),
             extensionReceiver.toKtReceiverValue(),
         )
@@ -629,7 +629,7 @@ internal class KtFirCallResolver(
         }
         val ktSignature = operationSymbol.toKtSignature()
         return KtPartiallyAppliedSymbol(
-            ktSignature.substitute(substitutor.toKtSubstitutor()),
+            with(analysisSession) { ktSignature.substitute(substitutor.toKtSubstitutor()) },
             dispatchReceiverValue,
             extensionReceiverValue,
         )
@@ -849,7 +849,7 @@ internal class KtFirCallResolver(
                         listOf(
                             KtSimpleFunctionCall(
                                 KtPartiallyAppliedSymbol(
-                                    defaultArrayOfSymbol.toSignature(substitutor),
+                                    with(analysisSession) { defaultArrayOfSymbol.substitute(substitutor) },
                                     null,
                                     null,
                                 ),
@@ -868,7 +868,7 @@ internal class KtFirCallResolver(
         return KtSuccessCallInfo(
             KtSimpleFunctionCall(
                 KtPartiallyAppliedSymbol(
-                    arrayOfSymbol.toSignature(substitutor),
+                    with(analysisSession) { arrayOfSymbol.substitute(substitutor) },
                     null,
                     null,
                 ),
@@ -970,7 +970,11 @@ internal class KtFirCallResolver(
         val parameterSymbol = arrayOfCallSymbol.valueParameters.single()
 
         for (firExpression in argumentList.arguments) {
-            mapArgumentExpressionToParameter(firExpression, parameterSymbol.toSignature(substitutor), ktArgumentMapping)
+            mapArgumentExpressionToParameter(
+                firExpression,
+                with(analysisSession) { parameterSymbol.substitute(substitutor) },
+                ktArgumentMapping
+            )
         }
         return ktArgumentMapping
     }
