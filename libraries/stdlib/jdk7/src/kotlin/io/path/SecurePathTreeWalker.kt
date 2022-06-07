@@ -18,7 +18,7 @@ internal class SecurePathTreeWalker private constructor(
     private var onFile: ((Path) -> Unit)?,
     private var onEnter: ((Path) -> Unit)?,
     private var onLeave: ((Path) -> Unit)?,
-    private var onFail: ((f: Path, e: Throwable) -> Unit)?,
+    private var onFail: ((f: Path, e: Exception) -> Unit)?,
 ) {
     constructor(followLinks: Boolean) : this(
         linkOptions = LinkFollowing.toOptions(followLinks),
@@ -40,14 +40,14 @@ internal class SecurePathTreeWalker private constructor(
         return this.apply { onLeave = function }
     }
 
-    fun onFail(function: (Path, Throwable) -> Unit): SecurePathTreeWalker {
+    fun onFail(function: (Path, Exception) -> Unit): SecurePathTreeWalker {
         return this.apply { onFail = function }
     }
 
     private fun tryInvoke(function: ((Path) -> Unit)?, path: Path) {
         try {
             function?.invoke(path)
-        } catch (exception: Throwable) {
+        } catch (exception: Exception) {
             onFail?.invoke(path, exception) ?: throw exception
         }
     }
@@ -107,7 +107,7 @@ internal class SecurePathTreeWalker private constructor(
                     directoryStream.walkEntries()
                 }
             }
-        } catch (exception: Throwable) {
+        } catch (exception: Exception) {
             onFail?.invoke(path, exception)
         }
 
@@ -142,7 +142,7 @@ internal class SecurePathTreeWalker private constructor(
 
         try {
             this.newDirectoryStream(path).use { it.walkEntries() }
-        } catch (exception: Throwable) {
+        } catch (exception: Exception) {
             onFail?.invoke(path, exception)
         }
 
@@ -151,11 +151,11 @@ internal class SecurePathTreeWalker private constructor(
 
     /** If the given [path] is a directory, returns its attributes. Returns `null` otherwise. */
     private fun SecureDirectoryStream<Path>.directoryAttributesOrNull(path: Path): BasicFileAttributes? {
-        try {
-            return getFileAttributeView(path, BasicFileAttributeView::class.java, *linkOptions).readAttributes().takeIf { it.isDirectory }
-        } catch (exception: IOException) {
+        return try {
+            getFileAttributeView(path, BasicFileAttributeView::class.java, *linkOptions).readAttributes().takeIf { it.isDirectory }
+        } catch (exception: Exception) {
             // ignore
-            return null
+            null
         }
     }
 
@@ -178,7 +178,7 @@ internal class SecurePathTreeWalker private constructor(
 
         try {
             Files.newDirectoryStream(path).use { it.walkEntries() }
-        } catch (exception: Throwable) {
+        } catch (exception: Exception) {
             onFail?.invoke(path, exception)
         }
 
@@ -187,11 +187,11 @@ internal class SecurePathTreeWalker private constructor(
 
     /** If the given [path] is a directory, returns its attributes. Returns `null` otherwise. */
     private fun directoryAttributesOrNull(path: Path): BasicFileAttributes? {
-        try {
-            return path.readAttributes<BasicFileAttributes>(*linkOptions).takeIf { it.isDirectory }
-        } catch (exception: IOException) {
+        return try {
+            path.readAttributes<BasicFileAttributes>(*linkOptions).takeIf { it.isDirectory }
+        } catch (exception: Exception) {
             // ignore
-            return null
+            null
         }
     }
 }
