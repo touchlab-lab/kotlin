@@ -29,7 +29,7 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         assertTrue(file.exists())
         file.deleteRecursively()
         assertFalse(file.exists())
-        file.deleteRecursively() // // successfully deletes recursively a non-existent file
+        file.deleteRecursively() // successfully deletes recursively a non-existent file
     }
 
     @Test
@@ -52,8 +52,9 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         val restrictedFile = basedir.resolve("7.txt").toFile()
         try {
             if (restrictedDir.setReadable(false) && restrictedFile.setReadable(false)) {
-                // TODO: assertFailsWith<>
-                assertFails("Expected incomplete recursive deletion") { basedir.deleteRecursively() }
+                assertFailsWith<java.nio.file.FileSystemException>("Expected incomplete recursive deletion") {
+                    basedir.deleteRecursively()
+                }
                 assertTrue(restrictedDir.exists()) // couldn't read directory entries
                 assertFalse(restrictedFile.exists()) // restricted read allows removal of file
 
@@ -73,8 +74,7 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         val restricted = basedir.resolve("1").toFile()
         try {
             if (restricted.setWritable(false)) {
-                // TODO: assertFailsWith<>
-                assertFails("Expected incomplete recursive deletion") {
+                assertFailsWith<FileSystemException>("Expected incomplete recursive deletion") {
                     basedir.deleteRecursively()
                 }
                 assertTrue(restricted.exists())

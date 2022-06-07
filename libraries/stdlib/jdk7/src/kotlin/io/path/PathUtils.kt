@@ -1122,9 +1122,6 @@ public fun Path.copyRecursively(
     }.walk(this)
 
     if (suppressedExceptions.isNotEmpty()) {
-        if (suppressedExceptions.size == 1)
-            throw suppressedExceptions.single()
-
         throw FileSystemException("Failed to copy one or more files. See suppressed exceptions for details.").apply {
             suppressedExceptions.forEach { addSuppressed(it) }
         }
@@ -1172,9 +1169,6 @@ public fun Path.deleteRecursively(followLinks: Boolean = false): Unit {
     }.walk(this)
 
     if (suppressedExceptions.isNotEmpty()) {
-        if (suppressedExceptions.size == 1)
-            throw suppressedExceptions.single()
-
         throw FileSystemException("Failed to delete one or more files. See suppressed exceptions for details.").apply {
             suppressedExceptions.forEach { addSuppressed(it) }
         }
