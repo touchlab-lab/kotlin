@@ -126,7 +126,7 @@ private class PathNode(val path: Path, val key: Any?, val parent: PathNode?) {
     var contentIterator: Iterator<Path>? = null
 }
 
-private object LinkFollowing {
+internal object LinkFollowing {
     private val nofollow = arrayOf(LinkOption.NOFOLLOW_LINKS)
     private val follow = emptyArray<LinkOption>()
 
