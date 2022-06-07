@@ -10,10 +10,7 @@ import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributeView
 import java.nio.file.attribute.BasicFileAttributes
 
-// TODO: should SecurityException be caught and passed to onFail?
-//  Or maybe IOException is enough?
-//  Currently all exceptions are caught.
-internal class SecurePathTreeWalker private constructor(
+internal class SecurePathTreeWalk private constructor(
     private val linkOptions: Array<LinkOption>,
     private var onFile: ((Path) -> Unit)?,
     private var onEnter: ((Path) -> Unit)?,
@@ -28,19 +25,19 @@ internal class SecurePathTreeWalker private constructor(
         onFail = null
     )
 
-    fun onFile(function: (Path) -> Unit): SecurePathTreeWalker {
+    fun onFile(function: (Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onFile = function }
     }
 
-    fun onEnterDirectory(function: (Path) -> Unit): SecurePathTreeWalker {
+    fun onEnterDirectory(function: (Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onEnter = function }
     }
 
-    fun onLeaveDirectory(function: (Path) -> Unit): SecurePathTreeWalker {
+    fun onLeaveDirectory(function: (Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onLeave = function }
     }
 
-    fun onFail(function: (Path, Exception) -> Unit): SecurePathTreeWalker {
+    fun onFail(function: (Path, Exception) -> Unit): SecurePathTreeWalk {
         return this.apply { onFail = function }
     }
 
@@ -98,7 +95,6 @@ internal class SecurePathTreeWalker private constructor(
         beforeWalkingEntries(path, key)
 
         try {
-            // test start symlink to a directory
             // behavior not documented for symlinks
             Files.newDirectoryStream(path).use { directoryStream ->
                 if (directoryStream is SecureDirectoryStream) {
@@ -114,9 +110,6 @@ internal class SecurePathTreeWalker private constructor(
         afterWalkingEntries(path)
 
         /* catch (_: NotDirectoryException) {
-            // test a file with limited read access
-            // test a non-existent file
-            // test a non-existent directory
             if (start.exists(LinkOption.NOFOLLOW_LINKS)) {
                 onFile?.invoke(start)
             }

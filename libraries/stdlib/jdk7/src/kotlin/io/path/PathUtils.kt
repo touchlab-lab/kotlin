@@ -1109,7 +1109,7 @@ public fun Path.copyRecursively(
 
     val suppressedExceptions = mutableListOf<Throwable>()
 
-    SecurePathTreeWalker(followLinks).onEnterDirectory { src ->
+    SecurePathTreeWalk(followLinks).onEnterDirectory { src ->
         // * REPLACE_EXISTING: If the target file exists and is a symbolic link,
         // * then the symbolic link itself, not the target of the link, is replaced.
         // For src it is not known if links are followed in copyAction
@@ -1158,7 +1158,7 @@ public fun Path.copyRecursively(
 public fun Path.deleteRecursively(followLinks: Boolean = false): Unit {
     val suppressedExceptions = mutableListOf<Throwable>()
 
-    SecurePathTreeWalker(followLinks).onFile { file ->
+    SecurePathTreeWalk(followLinks).onFile { file ->
         // TODO: Delete using SecureDirectoryStream
         file.deleteIfExists()
     }.onLeaveDirectory { dir ->
