@@ -69,6 +69,9 @@ object PluginCliParser {
         val componentRegistrars = ServiceLoaderLite.loadImplementations(ComponentRegistrar::class.java, classLoader)
         configuration.addAll(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS, componentRegistrars)
 
+        val k2PluginRegistrars = ServiceLoaderLite.loadImplementations(K2PluginRegistrar::class.java, classLoader)
+        configuration.addAll(K2PluginRegistrar.K2_PLUGIN_REGISTRARS, k2PluginRegistrars)
+
         processPluginOptions(pluginOptions, configuration, classLoader)
     }
 

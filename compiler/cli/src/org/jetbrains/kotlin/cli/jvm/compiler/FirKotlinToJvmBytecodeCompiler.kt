@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.codegen.ClassBuilderFactories
 import org.jetbrains.kotlin.codegen.CodegenFactory
 import org.jetbrains.kotlin.codegen.state.GenerationState
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
+import org.jetbrains.kotlin.compiler.plugin.K2PluginRegistrar
 import org.jetbrains.kotlin.config.*
 import org.jetbrains.kotlin.diagnostics.DiagnosticReporterFactory
 import org.jetbrains.kotlin.diagnostics.impl.BaseDiagnosticsCollector
@@ -86,21 +87,21 @@ object FirKotlinToJvmBytecodeCompiler {
             "ATTENTION!\n This build uses experimental K2 compiler: \n  -Xuse-k2"
         )
 
-        projectConfiguration.get(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS)?.let { pluginComponentRegistrars ->
-            val notSupportedPlugins = pluginComponentRegistrars.filter {
-                !it.supportsK2 || it::class.java.canonicalName != CLICompiler.SCRIPT_PLUGIN_REGISTRAR_NAME
-            }
-            if (notSupportedPlugins.isNotEmpty()) {
-                messageCollector.report(
-                    CompilerMessageSeverity.ERROR,
-                    """
-                        |There are some plugins incompatible with K2 compiler:
-                        |${notSupportedPlugins.joinToString(separator = "\n|") { "  ${it::class.qualifiedName}" }}
-                        |Please remove -Xuse-k2
-                    """.trimMargin()
-                )
-                return false
-            }
+        val notSupportedPlugins = mutableListOf<String?>().apply {
+            projectConfiguration.get(ComponentRegistrar.PLUGIN_COMPONENT_REGISTRARS).collectIncompatiblePluginNamesTo(this, ComponentRegistrar::supportsK2)
+            projectConfiguration.get(K2PluginRegistrar.K2_PLUGIN_REGISTRARS).collectIncompatiblePluginNamesTo(this, K2PluginRegistrar::supportsK2)
+        }
+
+        if (notSupportedPlugins.isNotEmpty()) {
+            messageCollector.report(
+                CompilerMessageSeverity.ERROR,
+                """
+                    |There are some plugins incompatible with K2 compiler:
+                    |${notSupportedPlugins.joinToString(separator = "\n|") { "  $it" }}
+                    |Please remove -Xuse-k2
+                """.trimMargin()
+            )
+            return false
         }
 
         val outputs = ArrayList<Pair<FirResult, GenerationState>>(chunk.size)
@@ -143,6 +144,14 @@ object FirKotlinToJvmBytecodeCompiler {
             outputs.map(Pair<FirResult, GenerationState>::second),
             mainClassFqName
         )
+    }
+
+    private fun <T : Any> List<T>?.collectIncompatiblePluginNamesTo(
+        destination: MutableList<String?>,
+        supportsK2: T.() -> Boolean
+    ) {
+        this?.filter { !it.supportsK2() || it::class.java.canonicalName != CLICompiler.SCRIPT_PLUGIN_REGISTRAR_NAME }
+            ?.mapTo(destination) { it::class.qualifiedName }
     }
 
     private fun CompilationContext.compileModule(): Pair<FirResult, GenerationState>? {
