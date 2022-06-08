@@ -5,7 +5,6 @@
 
 package kotlin.io.path
 
-import java.io.IOException
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributeView
 import java.nio.file.attribute.BasicFileAttributes
