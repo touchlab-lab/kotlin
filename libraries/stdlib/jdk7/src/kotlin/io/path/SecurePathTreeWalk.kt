@@ -49,37 +49,19 @@ internal class SecurePathTreeWalk private constructor(
         }
     }
 
-    private val stack = mutableListOf<Pair<Path, Any?>>()
-
-    private fun createsLoop(path: Path, key: Any?): Boolean {
-        for ((ancestorPath, ancestorKey) in stack) {
-            if (ancestorKey != null && key != null) {
-                if (ancestorKey == key)
-                    return true
-            } else {
-                try {
-                    if (ancestorPath.isSameFileAs(path))
-                        return true
-                } catch (_: IOException) { // ignore
-                } catch (_: SecurityException) { // ignore
-                }
-            }
-        }
-
-        return false
-    }
+    private var stack: PathNode? = null
 
     private fun beforeWalkingEntries(path: Path, key: Any?) {
-        if (createsLoop(path, key))
+        stack = PathNode(path, key, stack)
+        if (stack!!.createsCycle())
             throw FileSystemLoopException(path.toString())
 
-        stack.add(Pair(path, key))
         tryInvoke(onEnter, path)
     }
 
     private fun afterWalkingEntries(path: Path) {
         tryInvoke(onLeave, path)
-        stack.removeLast()
+        stack = stack!!.parent
     }
 
     // TODO: Guava opens parent directory stream to make sure all checks are done in a secure environment.

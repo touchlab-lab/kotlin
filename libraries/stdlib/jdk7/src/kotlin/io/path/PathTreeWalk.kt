@@ -102,7 +102,7 @@ private fun keyOf(path: Path, linkOptions: Array<LinkOption>): Any? {
     }
 }
 
-private fun PathNode.createsCycle(): Boolean {
+internal fun PathNode.createsCycle(): Boolean {
     var ancestor = parent
     while (ancestor != null) {
         if (ancestor.key != null && key != null) {
@@ -122,7 +122,7 @@ private fun PathNode.createsCycle(): Boolean {
     return false
 }
 
-private class PathNode(val path: Path, val key: Any?, val parent: PathNode?) {
+internal class PathNode(val path: Path, val key: Any?, val parent: PathNode?) {
     var contentIterator: Iterator<Path>? = null
 }
 
