@@ -11,9 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes
 
 internal class SecurePathTreeWalk private constructor(
     private val linkOptions: Array<LinkOption>,
-    private var onFile: ((Path) -> Unit)?,
-    private var onEnter: ((Path) -> Unit)?,
-    private var onLeave: ((Path) -> Unit)?,
+    private var onFile: ((SecureDirectoryStream<Path>?, Path) -> Unit)?,
+    private var onEnter: ((SecureDirectoryStream<Path>?, Path) -> Unit)?,
+    private var onLeave: ((SecureDirectoryStream<Path>?, Path) -> Unit)?,
     private var onFail: ((f: Path, e: Exception) -> Unit)?,
 ) {
     constructor(followLinks: Boolean) : this(
@@ -24,15 +24,15 @@ internal class SecurePathTreeWalk private constructor(
         onFail = null
     )
 
-    fun onFile(function: (Path) -> Unit): SecurePathTreeWalk {
+    fun onFile(function: (SecureDirectoryStream<Path>?, Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onFile = function }
     }
 
-    fun onEnterDirectory(function: (Path) -> Unit): SecurePathTreeWalk {
+    fun onEnterDirectory(function: (SecureDirectoryStream<Path>?, Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onEnter = function }
     }
 
-    fun onLeaveDirectory(function: (Path) -> Unit): SecurePathTreeWalk {
+    fun onLeaveDirectory(function: (SecureDirectoryStream<Path>?, Path) -> Unit): SecurePathTreeWalk {
         return this.apply { onLeave = function }
     }
 
@@ -40,9 +40,13 @@ internal class SecurePathTreeWalk private constructor(
         return this.apply { onFail = function }
     }
 
-    private fun tryInvoke(function: ((Path) -> Unit)?, path: Path) {
+    private fun tryInvoke(
+        function: ((SecureDirectoryStream<Path>?, Path) -> Unit)?,
+        stream: SecureDirectoryStream<Path>?,
+        path: Path
+    ) {
         try {
-            function?.invoke(path)
+            function?.invoke(stream, path)
         } catch (exception: Exception) {
             onFail?.invoke(path, exception) ?: throw exception
         }
@@ -50,69 +54,64 @@ internal class SecurePathTreeWalk private constructor(
 
     private var stack: PathNode? = null
 
-    private fun beforeWalkingEntries(path: Path, key: Any?) {
+    private fun beforeWalkingEntries(stream: SecureDirectoryStream<Path>?, path: Path, key: Any?) {
         stack = PathNode(path, key, stack)
         if (stack!!.createsCycle())
             throw FileSystemLoopException(path.toString())
 
-        tryInvoke(onEnter, path)
+        tryInvoke(onEnter, stream, path)
     }
 
-    private fun afterWalkingEntries(path: Path) {
-        tryInvoke(onLeave, path)
+    private fun afterWalkingEntries(stream: SecureDirectoryStream<Path>?, path: Path) {
+        tryInvoke(onLeave, stream, path)
         stack = stack!!.parent
     }
 
-    // TODO: Guava opens parent directory stream to make sure all checks are done in a secure environment.
     fun walk(path: Path): Unit {
-        if (!path.isDirectory(*linkOptions)) {
-            if (path.exists(LinkOption.NOFOLLOW_LINKS)) {
-                tryInvoke(onFile, path)
-            }
-            return
-        }
+        // test parent is symlink
+        // test path is symlink
+        // test path contains symlink in the middle
+        // test parent doesn't exist
+        // test path doesn't exist
 
-        val key = path.readAttributes<BasicFileAttributes>(*linkOptions).fileKey()
-        beforeWalkingEntries(path, key)
+        // TODO: https://github.com/google/guava/blob/78d67c94dbe95b918c839b3a0b50d44508c2838b/guava/src/com/google/common/io/MoreFiles.java#L722
+        //       Does it make sense in our case?
 
-        try {
-            // behavior not documented for symlinks
-            Files.newDirectoryStream(path).use { directoryStream ->
-                if (directoryStream is SecureDirectoryStream) {
-                    directoryStream.walkEntries()
-                } else {
-                    directoryStream.insecureWalkEntries()
+        var useInsecure = true
+
+        path.parent?.let { parent ->
+            val directoryStream = try { Files.newDirectoryStream(parent) } catch (exception: Throwable) { null }
+            directoryStream?.use { stream ->
+                if (stream is SecureDirectoryStream<Path>) {
+                    useInsecure = false
+                    stream.handleEntry(path.relativeTo(parent))
                 }
             }
-        } catch (exception: Exception) {
-            onFail?.invoke(path, exception)
         }
 
-        afterWalkingEntries(path)
-
-        /* catch (_: NotDirectoryException) {
-            if (start.exists(LinkOption.NOFOLLOW_LINKS)) {
-                onFile?.invoke(start)
-            }
-        }*/
+        if (useInsecure) {
+            insecureHandleEntry(path)
+        }
     }
 
     // secure walk
 
     private fun SecureDirectoryStream<Path>.walkEntries() {
-        for (entry in this) {
-            val attributes = directoryAttributesOrNull(entry)
+        forEach { handleEntry(it) }
+    }
 
-            if (attributes != null) {
-                enterDirectory(entry, attributes.fileKey())
-            } else {
-                tryInvoke(onFile, entry)
-            }
+    private fun SecureDirectoryStream<Path>.handleEntry(entry: Path) {
+        val attributes = directoryAttributesOrNull(entry)
+
+        if (attributes != null) {
+            enterDirectory(entry, attributes.fileKey())
+        } else {
+            tryInvoke(onFile, this, entry)
         }
     }
 
     private fun SecureDirectoryStream<Path>.enterDirectory(path: Path, key: Any?) {
-        beforeWalkingEntries(path, key)
+        beforeWalkingEntries(this, path, key)
 
         try {
             this.newDirectoryStream(path).use { it.walkEntries() }
@@ -120,7 +119,7 @@ internal class SecurePathTreeWalk private constructor(
             onFail?.invoke(path, exception)
         }
 
-        afterWalkingEntries(path)
+        afterWalkingEntries(this, path)
     }
 
     /** If the given [path] is a directory, returns its attributes. Returns `null` otherwise. */
@@ -136,19 +135,21 @@ internal class SecurePathTreeWalk private constructor(
     // insecure walk
 
     private fun DirectoryStream<Path>.insecureWalkEntries() {
-        for (entry in this) {
-            val attributes = insecureDirectoryAttributesOrNull(entry)
+        forEach { insecureHandleEntry(it) }
+    }
 
-            if (attributes != null) {
-                insecureEnterDirectory(entry, attributes.fileKey())
-            } else {
-                tryInvoke(onFile, entry)
-            }
+    private fun insecureHandleEntry(entry: Path) {
+        val attributes = insecureDirectoryAttributesOrNull(entry)
+
+        if (attributes != null) {
+            insecureEnterDirectory(entry, attributes.fileKey())
+        } else {
+            tryInvoke(onFile, null, entry)
         }
     }
 
     private fun insecureEnterDirectory(path: Path, key: Any?) {
-        beforeWalkingEntries(path, key)
+        beforeWalkingEntries(null, path, key)
 
         try {
             Files.newDirectoryStream(path).use { it.insecureWalkEntries() }
@@ -156,7 +157,7 @@ internal class SecurePathTreeWalk private constructor(
             onFail?.invoke(path, exception)
         }
 
-        afterWalkingEntries(path)
+        afterWalkingEntries(null, path)
     }
 
     /** If the given [path] is a directory, returns its attributes. Returns `null` otherwise. */

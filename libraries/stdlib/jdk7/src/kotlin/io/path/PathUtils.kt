@@ -1109,13 +1109,13 @@ public fun Path.copyRecursively(
 
     val suppressedExceptions = mutableListOf<Throwable>()
 
-    SecurePathTreeWalk(followLinks).onEnterDirectory { src ->
+    SecurePathTreeWalk(followLinks).onEnterDirectory { _, src ->
         // * REPLACE_EXISTING: If the target file exists and is a symbolic link,
         // * then the symbolic link itself, not the target of the link, is replaced.
         // For src it is not known if links are followed in copyAction
         val dst = target.resolve(src.relativeTo(this))
         copyAction(src, dst)
-    }.onFile { src ->
+    }.onFile { _, src ->
         copyAction(src, target.resolve(src.relativeTo(this)))
     }.onFail { _, exception ->
         suppressedExceptions.add(exception)
@@ -1158,12 +1158,19 @@ public fun Path.copyRecursively(
 public fun Path.deleteRecursively(followLinks: Boolean = false): Unit {
     val suppressedExceptions = mutableListOf<Throwable>()
 
-    SecurePathTreeWalk(followLinks).onFile { file ->
-        // TODO: Delete using SecureDirectoryStream
-        file.deleteIfExists()
-    }.onLeaveDirectory { dir ->
+    SecurePathTreeWalk(followLinks).onFile { secureDirectoryStream, file ->
+        if (secureDirectoryStream != null) {
+            secureDirectoryStream.deleteFile(file) // deletes symlink itself, not its target
+        } else {
+            file.deleteIfExists() // deletes symlink itself, not its target
+        }
+    }.onLeaveDirectory { secureDirectoryStream, dir ->
         // TODO: See if the directory is not empty, skip deletion as we already have suppressed failure for its children
-        dir.deleteIfExists()
+        if (secureDirectoryStream != null) {
+            secureDirectoryStream.deleteDirectory(dir)
+        } else {
+            dir.deleteIfExists()
+        }
     }.onFail { _, exception ->
         suppressedExceptions.add(exception)
     }.walk(this)
