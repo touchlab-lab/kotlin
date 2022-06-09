@@ -61,6 +61,8 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
                 restrictedDir.setReadable(true)
                 testVisitedFiles(listOf("", "1", "1/2", "1/3", "1/3/4.txt", "1/3/5.txt"), basedir.walkIncludeDirectories(), basedir)
                 basedir.deleteRecursively()
+            } else {
+                System.err.println("cannot restrict access")
             }
         } finally {
             restrictedDir.setReadable(true)
@@ -81,6 +83,8 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
 
                 restricted.setWritable(true)
                 basedir.deleteRecursively()
+            } else {
+                System.err.println("cannot restrict access")
             }
         } finally {
             restricted.setWritable(true)
@@ -390,6 +394,32 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
                     src.copyRecursively(dst)
                 }
                 assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
+
+                assertFalse(dst.resolve("1/3").isReadable()) // access permissions are copied
+            } finally {
+                restricted.setReadable(true)
+            }
+        } else {
+            System.err.println("cannot restrict access")
+        }
+    }
+
+    // TODO: Fix cleanupRecursively that fails when a restricted source is copied
+    @Test
+    fun copyRestrictedWriteInSource() {
+        val src = createTestFiles().cleanupRecursively()
+        val dst = createTempDirectory().cleanupRecursively()
+
+        val restricted = src.resolve("1/3").toFile()
+        if (restricted.setWritable(false)) {
+            try {
+                val error = assertFailsWith<java.nio.file.FileSystemException> {
+                    src.copyRecursively(dst)
+                }
+                error.suppressedExceptions.forEach {
+                    assertIs<java.nio.file.AccessDeniedException>(it)
+                    assertTrue(it.file.endsWith("4.txt") || it.file.endsWith("5.txt"))
+                }
             } finally {
                 restricted.setReadable(true)
             }
