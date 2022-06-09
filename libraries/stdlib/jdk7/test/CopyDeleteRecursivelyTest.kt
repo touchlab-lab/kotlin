@@ -647,4 +647,35 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
             src.copyRecursively(dst, followLinks = true)
         }
     }
+
+    @Test
+    fun canDeleteCurrentlyOpenDirectory() {
+        val basedir = createTempDirectory().cleanupRecursively()
+        val relativePath = basedir.relativeTo(basedir)
+        Files.newDirectoryStream(basedir).use { directoryStream ->
+            if (directoryStream is SecureDirectoryStream) {
+                println("Secure, relativePath: $relativePath")
+                directoryStream.deleteDirectory(relativePath)
+            } else {
+                println("Insecure, relativePath: $relativePath")
+                basedir.deleteIfExists()
+            }
+        }
+        println("Was deleted: ${basedir.notExists()}")
+    }
+
+    @Test
+    fun isDirectoryEntryInRelativePath() {
+        val basedir = createTestFiles().cleanupRecursively()
+        Files.newDirectoryStream(basedir).use { directoryStream ->
+            if (directoryStream is SecureDirectoryStream) {
+                println("Secure")
+            } else {
+                println("Not secure")
+            }
+            directoryStream.forEach {
+                println(it)
+            }
+        }
+    }
 }
