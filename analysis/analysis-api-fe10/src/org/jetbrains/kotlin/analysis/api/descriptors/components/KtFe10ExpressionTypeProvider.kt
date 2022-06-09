@@ -31,7 +31,7 @@ import org.jetbrains.kotlin.resolve.sam.getFunctionTypeForAbstractMethod
 import org.jetbrains.kotlin.types.error.ErrorTypeKind
 import org.jetbrains.kotlin.types.error.ErrorUtils
 import org.jetbrains.kotlin.types.TypeUtils
-import org.jetbrains.kotlin.types.checker.intersectWrappedTypes
+import org.jetbrains.kotlin.types.intersectWrappedTypes
 import org.jetbrains.kotlin.types.typeUtil.makeNullable
 
 class KtFe10ExpressionTypeProvider(
