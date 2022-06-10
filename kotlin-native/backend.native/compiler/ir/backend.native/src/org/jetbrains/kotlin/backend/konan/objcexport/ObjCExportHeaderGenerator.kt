@@ -13,10 +13,8 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns.isAny
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.name.ClassId
-import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DataClassResolver
 import org.jetbrains.kotlin.resolve.constants.ArrayValue
-import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationInfo
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationLevelValue
@@ -238,7 +236,7 @@ internal class ObjCExportTranslatorImpl(
         val name = translateClassOrInterfaceName(descriptor)
         val members: List<Stub<*>> = buildMembers { translateInterfaceMembers(descriptor) }
         val superProtocols: List<String> = descriptor.superProtocols
-        val comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations))
+        val comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations).map { "@annotations $it" })
 
         return objCProtocol(name, descriptor, superProtocols, members, comment = comment)
     }
@@ -429,7 +427,7 @@ internal class ObjCExportTranslatorImpl(
                 superProtocols = superProtocols,
                 members = members,
                 attributes = attributes,
-                comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations))
+                comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations).map { "@annotations $it" })
         )
     }
 
@@ -615,7 +613,7 @@ internal class ObjCExportTranslatorImpl(
         val declarationAttributes = mutableListOf(swiftNameAttribute(name))
         declarationAttributes.addIfNotNull(mapper.getDeprecation(property)?.toDeprecationAttribute())
 
-        val commentLines = mustBeDocumentedAnnotations(property.annotations)
+        val commentLines = mustBeDocumentedAnnotations(property.annotations).map { "@annotations $it" }
         return ObjCProperty(name, property, type, attributes, setterName, getterName, declarationAttributes, objCCommentOrNull(commentLines))
     }
 
@@ -771,19 +769,20 @@ internal class ObjCExportTranslatorImpl(
             }
         } else emptyList()
 
-        val paramComments = parameters.flatMap {parameter ->
-            if (parameter.descriptor != null)
-                mustBeDocumentedAnnotations(parameter.descriptor.annotations).map { "@param ${parameter.name} $it" }
-            else emptyList()
+        val paramComments = parameters.flatMap { parameter ->
+            if (parameter.descriptor != null) {
+                val mbdAnnotations = mustBeDocumentedAnnotations(parameter.descriptor.annotations).joinToString(", ") { it.toString() }
+                if (mbdAnnotations.isNotEmpty()) listOf("@param ${parameter.name} annotations: $mbdAnnotations") else emptyList()
+            } else emptyList()
         }
-        return objCCommentOrNull(mustBeDocumentedAnnotations(method.annotations) + paramComments + throwsCommentLines)
+        return objCCommentOrNull(mustBeDocumentedAnnotations(method.annotations).map { "@annotations $it" } + paramComments + throwsCommentLines)
     }
 
     private fun objCCommentOrNull(commentLines: List<String>): ObjCComment? {
         return if (commentLines.isNotEmpty()) ObjCComment(commentLines) else null
     }
 
-    private fun valueArgumentsToString(arguments: Map<Name, ConstantValue<*>>): String {
+    private fun valueArgumentsToString(arguments: Map<*, *>): String {
         if (arguments.isEmpty()) return ""
         return buildString {
             append('(')
@@ -794,12 +793,12 @@ internal class ObjCExportTranslatorImpl(
 
     private fun mustBeDocumentedAnnotations(annotations: Annotations): List<String> {
         val mustBeDocumentedClassName = "kotlin.annotation.MustBeDocumented"
-        val stopList = listOf ("kotlin.Deprecated")
+        val stopList = listOf("kotlin.Deprecated")
         return annotations.flatMap { it ->
             listOfNotNull(it.annotationClass).flatMap { annotationClass ->
                 if (!stopList.contains(annotationClass.fqNameSafe.toString()) &&
                         annotationClass.annotations.any { metaAnnotation -> metaAnnotation.fqName?.toString() == mustBeDocumentedClassName })
-                    listOf("@${annotationClass.fqNameSafe}${valueArgumentsToString(it.allValueArguments)}")
+                    listOf("${annotationClass.fqNameSafe}${valueArgumentsToString(it.allValueArguments)}")
                 else emptyList()
             }
         }
