@@ -9,6 +9,7 @@ import samples.*
 import java.nio.file.*
 import kotlin.io.path.*
 
+@OptIn(ExperimentalPathApi::class)
 class Path {
 
     @Sample

@@ -1014,7 +1014,7 @@ public inline fun URI.toPath(): Path =
  * If the file located by this path does not exist, an empty sequence is returned.
  * if the file located by this path is not a directory, a sequence containing only this path is returned.
  */
-@ExperimentalStdlibApi
+@ExperimentalPathApi
 @SinceKotlin("1.7")
 public fun Path.walk(vararg options: PathWalkOption): Sequence<Path> = PathTreeWalk(this, options)
 
@@ -1031,7 +1031,7 @@ public fun Path.walk(vararg options: PathWalkOption): Sequence<Path> = PathTreeW
  *
  * @sample samples.io.Path.fileVisitor
  */
-@ExperimentalStdlibApi
+@ExperimentalPathApi
 @SinceKotlin("1.7")
 public fun Path.visitFileTree(visitor: FileVisitor<Path>, maxDepth: Int = Int.MAX_VALUE, followLinks: Boolean = false): Unit {
     val options = if (followLinks) setOf(FileVisitOption.FOLLOW_LINKS) else setOf()
@@ -1058,7 +1058,7 @@ public fun Path.visitFileTree(visitor: FileVisitor<Path>, maxDepth: Int = Int.MA
  *
  * @sample samples.io.Path.fileVisitor
  */
-@ExperimentalStdlibApi
+@ExperimentalPathApi
 @SinceKotlin("1.7")
 public fun fileVisitor(builderAction: FileVisitorBuilder.() -> Unit): FileVisitor<Path> {
     contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }

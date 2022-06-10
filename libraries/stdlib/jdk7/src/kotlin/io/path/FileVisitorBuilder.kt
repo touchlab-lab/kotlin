@@ -17,7 +17,7 @@ import java.nio.file.attribute.BasicFileAttributes
  *
  * @sample samples.io.Path.fileVisitor
  */
-@ExperimentalStdlibApi
+@ExperimentalPathApi
 @SinceKotlin("1.7")
 public sealed interface FileVisitorBuilder {
     /**
@@ -53,7 +53,7 @@ public sealed interface FileVisitorBuilder {
 }
 
 
-@ExperimentalStdlibApi
+@ExperimentalPathApi
 internal class FileVisitorBuilderImpl : FileVisitorBuilder {
     private var preVisitDirectory: ((Path, BasicFileAttributes) -> FileVisitResult)? = null
     private var visitFile: ((Path, BasicFileAttributes) -> FileVisitResult)? = null
