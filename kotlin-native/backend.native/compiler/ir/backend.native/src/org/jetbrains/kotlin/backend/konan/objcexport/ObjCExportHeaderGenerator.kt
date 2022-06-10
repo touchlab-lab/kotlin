@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.backend.konan.descriptors.*
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns.isAny
 import org.jetbrains.kotlin.descriptors.*
+import org.jetbrains.kotlin.descriptors.annotations.AnnotationDescriptor
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.resolve.DataClassResolver
@@ -771,7 +772,7 @@ internal class ObjCExportTranslatorImpl(
 
         val paramComments = parameters.flatMap { parameter ->
             if (parameter.descriptor != null) {
-                val mbdAnnotations = mustBeDocumentedAnnotations(parameter.descriptor.annotations).joinToString(", ") { it.toString() }
+                val mbdAnnotations = mustBeDocumentedAnnotations(parameter.descriptor.annotations).joinToString(", ")
                 if (mbdAnnotations.isNotEmpty()) listOf("@param ${parameter.name} annotations: $mbdAnnotations") else emptyList()
             } else emptyList()
         }
@@ -782,25 +783,27 @@ internal class ObjCExportTranslatorImpl(
         return if (commentLines.isNotEmpty()) ObjCComment(commentLines) else null
     }
 
-    private fun valueArgumentsToString(arguments: Map<*, *>): String {
-        if (arguments.isEmpty()) return ""
+    private fun renderAnnotation(descriptor: AnnotationDescriptor, clazz: ClassDescriptor): String {
         return buildString {
-            append('(')
-            append(arguments.map { it.toString() }.joinToString(","))
-            append(')')
+            append(clazz.fqNameSafe)
+            if (descriptor.allValueArguments.isNotEmpty()) {
+                append('(')
+                descriptor.allValueArguments.entries.joinTo(this)
+                append(')')
+            }
         }
     }
 
+    private val mustBeDocumentedAnnotationsStopList = listOf(StandardNames.FqNames.deprecated)
     private fun mustBeDocumentedAnnotations(annotations: Annotations): List<String> {
-        val mustBeDocumentedClassName = "kotlin.annotation.MustBeDocumented"
-        val stopList = listOf("kotlin.Deprecated")
         return annotations.flatMap { it ->
-            listOfNotNull(it.annotationClass).flatMap { annotationClass ->
-                if (!stopList.contains(annotationClass.fqNameSafe.toString()) &&
-                        annotationClass.annotations.any { metaAnnotation -> metaAnnotation.fqName?.toString() == mustBeDocumentedClassName })
-                    listOf("${annotationClass.fqNameSafe}${valueArgumentsToString(it.allValueArguments)}")
+            it.annotationClass?.let { annotationClass ->
+                if (!mustBeDocumentedAnnotationsStopList.contains(annotationClass.fqNameSafe) && annotationClass.annotations.any { metaAnnotation ->
+                            metaAnnotation.fqName == StandardNames.FqNames.mustBeDocumented
+                        })
+                    listOf(renderAnnotation(it, annotationClass))
                 else emptyList()
-            }
+            } ?: emptyList()
         }
     }
 
