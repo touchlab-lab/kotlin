@@ -1014,8 +1014,9 @@ __attribute__((swift_name("Bar")))
  * @return their sum
  */
 /**
- @annotations Foo
- @param fooParam annotations: Foo, BugReport(assignedTo="me", status="fixed")
+ @attributelist annotations
+   Foo
+ @param fooParam annotations Foo BugReport(assignedTo="me", status="fixed")
  @note This method converts instances of CancellationException to errors.
  Other uncaught Kotlin exceptions are fatal.
 */
@@ -1026,8 +1027,9 @@ __attribute__((swift_name("Bar")))
  *
  */
 /**
- @annotations Foo
- @annotations BugReport(assignedTo="me", status="open")
+ @attributelist annotations
+   Foo
+   BugReport(assignedTo="me", status="open")
 */
 @property (readonly) NSString *greeting __attribute__((swift_name("greeting")));
 @end;

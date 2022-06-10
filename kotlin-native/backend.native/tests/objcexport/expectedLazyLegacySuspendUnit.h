@@ -938,6 +938,34 @@ __attribute__((swift_name("KT49937")))
 - (NSString *)description __attribute__((swift_name("description()")));
 @end;
 
+__attribute__((swift_name("MyInterface")))
+@protocol KtMyInterface
+@required
+@end;
+
+__attribute__((objc_subclassing_restricted))
+__attribute__((swift_name("Bar")))
+@interface KtBar : KtBase
+- (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
++ (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
+
+/**
+ @attributelist annotations
+   Foo
+ @param fooParam annotations Foo BugReport(assignedTo="me", status="fixed")
+ @note This method converts instances of CancellationException to errors.
+ Other uncaught Kotlin exceptions are fatal.
+*/
+- (void)bazNodocParam:(int32_t)nodocParam fooParam:(int32_t)fooParam completionHandler:(void (^)(KtInt * _Nullable, NSError * _Nullable))completionHandler __attribute__((swift_name("baz(nodocParam:fooParam:completionHandler:)"))) __attribute__((deprecated("warning")));
+
+/**
+ @attributelist annotations
+   Foo
+   BugReport(assignedTo="me", status="open")
+*/
+@property (readonly) NSString *greeting __attribute__((swift_name("greeting")));
+@end;
+
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("LibraryKt")))
 @interface KtLibraryKt : KtBase

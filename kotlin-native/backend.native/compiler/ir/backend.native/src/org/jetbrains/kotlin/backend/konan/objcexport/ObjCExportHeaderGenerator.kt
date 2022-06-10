@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.backend.konan.objcexport
 import org.jetbrains.kotlin.backend.common.serialization.findSourceFile
 import org.jetbrains.kotlin.backend.konan.*
 import org.jetbrains.kotlin.backend.konan.descriptors.*
+import org.jetbrains.kotlin.backend.konan.optimizations.DataFlowIR
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns.isAny
 import org.jetbrains.kotlin.descriptors.*
@@ -237,7 +238,7 @@ internal class ObjCExportTranslatorImpl(
         val name = translateClassOrInterfaceName(descriptor)
         val members: List<Stub<*>> = buildMembers { translateInterfaceMembers(descriptor) }
         val superProtocols: List<String> = descriptor.superProtocols
-        val comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations).map { "@annotations $it" })
+        val comment = objCCommentOrNull(mustBeDocumentedAttributeList(descriptor.annotations))
 
         return objCProtocol(name, descriptor, superProtocols, members, comment = comment)
     }
@@ -428,7 +429,7 @@ internal class ObjCExportTranslatorImpl(
                 superProtocols = superProtocols,
                 members = members,
                 attributes = attributes,
-                comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations).map { "@annotations $it" })
+                comment = objCCommentOrNull(mustBeDocumentedAttributeList(descriptor.annotations))
         )
     }
 
@@ -614,8 +615,8 @@ internal class ObjCExportTranslatorImpl(
         val declarationAttributes = mutableListOf(swiftNameAttribute(name))
         declarationAttributes.addIfNotNull(mapper.getDeprecation(property)?.toDeprecationAttribute())
 
-        val commentLines = mustBeDocumentedAnnotations(property.annotations).map { "@annotations $it" }
-        return ObjCProperty(name, property, type, attributes, setterName, getterName, declarationAttributes, objCCommentOrNull(commentLines))
+        val commentOrNull = objCCommentOrNull(mustBeDocumentedAttributeList(property.annotations))
+        return ObjCProperty(name, property, type, attributes, setterName, getterName, declarationAttributes, commentOrNull)
     }
 
     internal fun buildMethod(
@@ -771,12 +772,21 @@ internal class ObjCExportTranslatorImpl(
         } else emptyList()
 
         val paramComments = parameters.flatMap { parameter ->
-            if (parameter.descriptor != null) {
-                val mbdAnnotations = mustBeDocumentedAnnotations(parameter.descriptor.annotations).joinToString(", ")
-                if (mbdAnnotations.isNotEmpty()) listOf("@param ${parameter.name} annotations: $mbdAnnotations") else emptyList()
-            } else emptyList()
+            parameter.descriptor?.let { mustBeDocumentedParamAttributeList(parameter, descriptor = it) } ?: emptyList()
         }
-        return objCCommentOrNull(mustBeDocumentedAnnotations(method.annotations).map { "@annotations $it" } + paramComments + throwsCommentLines)
+        return objCCommentOrNull(mustBeDocumentedAttributeList(method.annotations) + paramComments + throwsCommentLines)
+    }
+
+    private fun mustBeDocumentedParamAttributeList(parameter: ObjCParameter, descriptor: ParameterDescriptor): List<String> {
+        val mbdAnnotations = mustBeDocumentedAnnotations(descriptor.annotations).joinToString(" ")
+        return if (mbdAnnotations.isNotEmpty()) listOf("@param ${parameter.name} annotations $mbdAnnotations") else emptyList()
+    }
+
+    private fun mustBeDocumentedAttributeList(annotations: Annotations): List<String> {
+        val methodAnnotations = mustBeDocumentedAnnotations(annotations)
+        return if (methodAnnotations.isNotEmpty()) {
+            listOf(listOf("@attributelist annotations"), methodAnnotations.map { "  $it" }).flatten()
+        } else emptyList()
     }
 
     private fun objCCommentOrNull(commentLines: List<String>): ObjCComment? {
