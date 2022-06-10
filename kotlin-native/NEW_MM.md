@@ -102,7 +102,7 @@ To temporarily support code for both new and legacy MM, ignore deprecation warni
 
 See [Opt-in requirements](https://kotlinlang.org/docs/opt-in-requirements.html) for more details.
 
-Affected API:
+To support new MM only, remove usages of the affected API:
 * [`@SharedImmutable`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.concurrent/-shared-immutable/):
   remove usages. Its usage does not trigger any warning.
 * [`class FreezableAtomicReference`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.concurrent/-freezable-atomic-reference/):
@@ -126,7 +126,7 @@ Affected API:
 * [`class WorkerBoundReference<out T : Any>`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.concurrent/-worker-bound-reference/):
   use `T` directly.
 * [`class DetachedObjectGraph<T>`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.native.concurrent/-detached-object-graph/):
-  use `T` directly.
+  use `T` directly. To pass the value through the C interop, use [`class StableRef<T>`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlinx.cinterop/-stable-ref/).
 
 Additionally, setting `freezing` binary option to anything but `disabled` with the new MM is deprecated. Currently, usage causes a diagnostics message - not a warning.
 
