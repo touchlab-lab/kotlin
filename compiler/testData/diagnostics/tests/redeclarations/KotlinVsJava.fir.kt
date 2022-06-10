@@ -7,4 +7,4 @@ public class Same {
 // FILE: oneversion/Same.kt
 package oneversion
 
-class Same
+class <!PACKAGE_OR_CLASSIFIER_REDECLARATION!>Same<!>
