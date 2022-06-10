@@ -13,8 +13,10 @@ import org.jetbrains.kotlin.builtins.KotlinBuiltIns.isAny
 import org.jetbrains.kotlin.descriptors.*
 import org.jetbrains.kotlin.descriptors.annotations.Annotations
 import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.resolve.DataClassResolver
 import org.jetbrains.kotlin.resolve.constants.ArrayValue
+import org.jetbrains.kotlin.resolve.constants.ConstantValue
 import org.jetbrains.kotlin.resolve.constants.KClassValue
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationInfo
 import org.jetbrains.kotlin.resolve.deprecation.DeprecationLevelValue
@@ -781,15 +783,19 @@ internal class ObjCExportTranslatorImpl(
         return if (commentLines.isNotEmpty()) ObjCComment(commentLines) else null
     }
 
+    private fun mapToString(map: Map<Name, ConstantValue<*>>): String {
+        if (map.isEmpty()) return ""
+        return map.toString()
+    }
+
     private fun mustBeDocumentedAnnotations(annotations: Annotations): List<String> {
         val mustBeDocumentedClassName = "kotlin.annotation.MustBeDocumented"
+        val stopList = listOf ("kotlin.Deprecated")
         return annotations.flatMap { it ->
             listOfNotNull(it.annotationClass).flatMap { annotationClass ->
-                if (annotationClass.annotations.any { metaAnnotation -> metaAnnotation.fqName?.toString() == mustBeDocumentedClassName })
-                    if (it.allValueArguments.isNotEmpty())
-                        listOf("@${annotationClass.fqNameSafe} ${it.allValueArguments}")
-                    else
-                        listOf("@${annotationClass.fqNameSafe}")
+                if (!stopList.contains(annotationClass.fqNameSafe.toString()) &&
+                        annotationClass.annotations.any { metaAnnotation -> metaAnnotation.fqName?.toString() == mustBeDocumentedClassName })
+                    listOf("@${annotationClass.fqNameSafe}${mapToString(it.allValueArguments)}")
                 else emptyList()
             }
         }

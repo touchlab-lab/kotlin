@@ -830,11 +830,6 @@ __attribute__((swift_name("MoreTrickyChars")))
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("Kt39206Kt")))
 @interface KtKt39206Kt : KtBase
-
-/**
- @kotlin.Deprecated {message="Don't call this
-Please"}
-*/
 + (int32_t)myFunc __attribute__((swift_name("myFunc()"))) __attribute__((deprecated("Don't call this\nPlease")));
 @end;
 
@@ -2145,15 +2140,7 @@ __attribute__((swift_name("TestInvalidIdentifiers.CompanionS")))
 
 __attribute__((swift_name("TestDeprecation")))
 @interface KtTestDeprecation : KtBase
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
@@ -2161,26 +2148,10 @@ __attribute__((swift_name("TestDeprecation")))
 - (int32_t)callEffectivelyHiddenObj:(id)obj __attribute__((swift_name("callEffectivelyHidden(obj:)")));
 - (id)getHidden __attribute__((swift_name("getHidden()")));
 - (KtTestDeprecationError *)getError __attribute__((swift_name("getError()")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (void)error __attribute__((swift_name("error()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (void)openError __attribute__((swift_name("openError()"))) __attribute__((unavailable("error")));
 - (KtTestDeprecationWarning *)getWarning __attribute__((swift_name("getWarning()")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (void)warning __attribute__((swift_name("warning()"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (void)openWarning __attribute__((swift_name("openWarning()"))) __attribute__((deprecated("warning")));
 - (void)normal __attribute__((swift_name("normal()")));
 - (int32_t)openNormal __attribute__((swift_name("openNormal()")));
@@ -2197,45 +2168,13 @@ __attribute__((swift_name("TestDeprecation")))
 - (void)testTopLevelHiddenInnerInner:(id)topLevelHiddenInnerInner __attribute__((swift_name("test(topLevelHiddenInnerInner:)")));
 - (void)testExtendingHiddenNested:(id)extendingHiddenNested __attribute__((swift_name("test(extendingHiddenNested:)")));
 - (void)testExtendingNestedInHidden:(id)extendingNestedInHidden __attribute__((swift_name("test(extendingNestedInHidden:)")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable errorVal __attribute__((swift_name("errorVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable errorVar __attribute__((swift_name("errorVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable openErrorVal __attribute__((swift_name("openErrorVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable openErrorVar __attribute__((swift_name("openErrorVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable warningVal __attribute__((swift_name("warningVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable warningVar __attribute__((swift_name("warningVar"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable openWarningVal __attribute__((swift_name("openWarningVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable openWarningVar __attribute__((swift_name("openWarningVar"))) __attribute__((deprecated("warning")));
 @property (readonly) id _Nullable normalVal __attribute__((swift_name("normalVal")));
 @property id _Nullable normalVar __attribute__((swift_name("normalVar")));
@@ -2307,15 +2246,7 @@ __attribute__((swift_name("TestDeprecation.OpenError")))
 @interface KtTestDeprecationOpenError : KtTestDeprecation
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @end;
@@ -2344,15 +2275,7 @@ __attribute__((swift_name("TestDeprecation.Error")))
 @interface KtTestDeprecationError : KtTestDeprecation
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @end;
@@ -2361,15 +2284,7 @@ __attribute__((swift_name("TestDeprecation.OpenWarning")))
 @interface KtTestDeprecationOpenWarning : KtTestDeprecation
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @end;
@@ -2398,15 +2313,7 @@ __attribute__((swift_name("TestDeprecation.Warning")))
 @interface KtTestDeprecationWarning : KtTestDeprecation
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 @end;
@@ -2416,235 +2323,63 @@ __attribute__((swift_name("TestDeprecation.HiddenOverride")))
 @interface KtTestDeprecationHiddenOverride : KtTestDeprecation
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 - (void)openError __attribute__((swift_name("openError()"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 - (void)openWarning __attribute__((swift_name("openWarning()"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 - (int32_t)openNormal __attribute__((swift_name("openNormal()"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property (readonly) id _Nullable openErrorVal __attribute__((swift_name("openErrorVal"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property id _Nullable openErrorVar __attribute__((swift_name("openErrorVar"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property (readonly) id _Nullable openWarningVal __attribute__((swift_name("openWarningVal"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property id _Nullable openWarningVar __attribute__((swift_name("openWarningVar"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property (readonly) id _Nullable openNormalVal __attribute__((swift_name("openNormalVal"))) __attribute__((unavailable("hidden")));
-
-/**
- @kotlin.Deprecated {message="hidden", level=DeprecationLevel.HIDDEN}
-*/
 @property id _Nullable openNormalVar __attribute__((swift_name("openNormalVar"))) __attribute__((unavailable("hidden")));
 @end;
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("TestDeprecation.ErrorOverride")))
 @interface KtTestDeprecationErrorOverride : KtTestDeprecation
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithHidden:(int8_t)hidden __attribute__((swift_name("init(hidden:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((unavailable("error")));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (void)openHidden __attribute__((swift_name("openHidden()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (void)openError __attribute__((swift_name("openError()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (void)openWarning __attribute__((swift_name("openWarning()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 - (int32_t)openNormal __attribute__((swift_name("openNormal()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable openHiddenVal __attribute__((swift_name("openHiddenVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable openHiddenVar __attribute__((swift_name("openHiddenVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable openErrorVal __attribute__((swift_name("openErrorVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable openErrorVar __attribute__((swift_name("openErrorVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable openWarningVal __attribute__((swift_name("openWarningVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable openWarningVar __attribute__((swift_name("openWarningVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (readonly) id _Nullable openNormalVal __attribute__((swift_name("openNormalVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property id _Nullable openNormalVar __attribute__((swift_name("openNormalVar"))) __attribute__((unavailable("error")));
 @end;
 
 __attribute__((objc_subclassing_restricted))
 __attribute__((swift_name("TestDeprecation.WarningOverride")))
 @interface KtTestDeprecationWarningOverride : KtTestDeprecation
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithHidden:(int8_t)hidden __attribute__((swift_name("init(hidden:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithError:(int16_t)error __attribute__((swift_name("init(error:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithWarning:(int32_t)warning __attribute__((swift_name("init(warning:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (instancetype)initWithNormal:(int64_t)normal __attribute__((swift_name("init(normal:)"))) __attribute__((objc_designated_initializer)) __attribute__((deprecated("warning")));
 - (instancetype)init __attribute__((swift_name("init()"))) __attribute__((objc_designated_initializer));
 + (instancetype)new __attribute__((availability(swift, unavailable, message="use object initializers instead")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (void)openHidden __attribute__((swift_name("openHidden()"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (void)openError __attribute__((swift_name("openError()"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (void)openWarning __attribute__((swift_name("openWarning()"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 - (int32_t)openNormal __attribute__((swift_name("openNormal()"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable openHiddenVal __attribute__((swift_name("openHiddenVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable openHiddenVar __attribute__((swift_name("openHiddenVar"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable openErrorVal __attribute__((swift_name("openErrorVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable openErrorVar __attribute__((swift_name("openErrorVar"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable openWarningVal __attribute__((swift_name("openWarningVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable openWarningVar __attribute__((swift_name("openWarningVar"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (readonly) id _Nullable openNormalVal __attribute__((swift_name("openNormalVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property id _Nullable openNormalVar __attribute__((swift_name("openNormalVar"))) __attribute__((deprecated("warning")));
 @end;
 
@@ -2987,15 +2722,7 @@ __attribute__((swift_name("ValuesKt")))
 + (BOOL)isFunction0Obj:(id _Nullable)obj __attribute__((swift_name("isFunction0(obj:)")));
 + (void)takeForwardDeclaredClassObj:(ForwardDeclaredClass *)obj __attribute__((swift_name("takeForwardDeclaredClass(obj:)")));
 + (void)takeForwardDeclaredProtocolObj:(id<ForwardDeclared>)obj __attribute__((swift_name("takeForwardDeclaredProtocol(obj:)")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 + (void)error __attribute__((swift_name("error()"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 + (void)warning __attribute__((swift_name("warning()"))) __attribute__((deprecated("warning")));
 + (void)gc __attribute__((swift_name("gc()")));
 + (void)testRememberNewObjectTest:(id<KtTestRememberNewObject>)test __attribute__((swift_name("testRememberNewObject(test:)")));
@@ -3058,25 +2785,9 @@ __attribute__((swift_name("ValuesKt")))
 @property (class) id anyValue __attribute__((swift_name("anyValue")));
 @property (class, readonly) KtInt *(^sumLambda)(KtInt *, KtInt *) __attribute__((swift_name("sumLambda")));
 @property (class, readonly) int32_t PROPERTY_NAME_MUST_NOT_BE_ALTERED_BY_SWIFT __attribute__((swift_name("PROPERTY_NAME_MUST_NOT_BE_ALTERED_BY_SWIFT")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (class, readonly) id _Nullable errorVal __attribute__((swift_name("errorVal"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="error", level=DeprecationLevel.ERROR}
-*/
 @property (class) id _Nullable errorVar __attribute__((swift_name("errorVar"))) __attribute__((unavailable("error")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (class, readonly) id _Nullable warningVal __attribute__((swift_name("warningVal"))) __attribute__((deprecated("warning")));
-
-/**
- @kotlin.Deprecated {message="warning", level=DeprecationLevel.WARNING}
-*/
 @property (class) id _Nullable warningVar __attribute__((swift_name("warningVar"))) __attribute__((deprecated("warning")));
 @property (class) int32_t gh3525BaseInitCount __attribute__((swift_name("gh3525BaseInitCount")));
 @property (class) int32_t gh3525InitCount __attribute__((swift_name("gh3525InitCount")));
