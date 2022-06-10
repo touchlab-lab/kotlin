@@ -52,10 +52,6 @@ fun KtReturnExpression.getTargetFunctionDescriptor(context: BindingContext): Fun
         .firstOrNull()
 }
 
-fun KtReturnExpression.getTargetFunction(context: BindingContext): KtCallableDeclaration? {
-    return getTargetFunctionDescriptor(context)?.let { DescriptorToSourceUtils.descriptorToDeclaration(it) as? KtCallableDeclaration }
-}
-
 fun KtExpression.isUsedAsExpression(context: BindingContext): Boolean =
     context[USED_AS_EXPRESSION, this] ?: false
 
@@ -81,18 +77,6 @@ fun BindingTrace.recordScope(scope: LexicalScope, element: KtElement?) {
     }
 }
 
-fun BindingContext.getDataFlowInfoAfter(position: PsiElement): DataFlowInfo {
-    for (element in position.parentsWithSelf) {
-        (element as? KtExpression)?.let {
-            val parent = it.parent
-            //TODO: it's a hack because KotlinTypeInfo with wrong DataFlowInfo stored for call expression after qualifier
-            if (parent is KtQualifiedExpression && it == parent.selectorExpression) return@let null
-            this[EXPRESSION_TYPE_INFO, it]
-        }?.let { return it.dataFlowInfo }
-    }
-    return DataFlowInfo.EMPTY
-}
-
 fun BindingContext.getDataFlowInfoBefore(position: PsiElement): DataFlowInfo {
     for (element in position.parentsWithSelf) {
         (element as? KtExpression)
@@ -109,17 +93,6 @@ fun KtExpression.getReferenceTargets(context: BindingContext): Collection<Declar
 
 fun KtTypeReference.getAbbreviatedTypeOrType(context: BindingContext) =
     context[ABBREVIATED_TYPE, this] ?: context[TYPE, this]
-
-fun KtTypeElement.getAbbreviatedTypeOrType(context: BindingContext): KotlinType? {
-    return when (val parent = parent) {
-        is KtTypeReference -> parent.getAbbreviatedTypeOrType(context)
-        is KtNullableType -> {
-            val outerType = parent.getAbbreviatedTypeOrType(context)
-            if (this is KtNullableType) outerType else outerType?.makeNotNullable()
-        }
-        else -> null
-    }
-}
 
 fun <T : PsiElement> KtElement.getParentOfTypeCodeFragmentAware(vararg parentClasses: Class<out T>): T? {
     PsiTreeUtil.getParentOfType(this, *parentClasses)?.let { return it }

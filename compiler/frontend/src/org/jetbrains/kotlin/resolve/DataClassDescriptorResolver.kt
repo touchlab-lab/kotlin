@@ -30,8 +30,6 @@ object DataClassDescriptorResolver {
 
     fun createComponentName(index: Int): Name = DataClassResolver.createComponentName(index)
 
-    fun getComponentIndex(componentName: String): Int = DataClassResolver.getComponentIndex(componentName)
-
     fun isComponentLike(name: Name): Boolean = DataClassResolver.isComponentLike(name)
 
     fun createComponentFunctionDescriptor(

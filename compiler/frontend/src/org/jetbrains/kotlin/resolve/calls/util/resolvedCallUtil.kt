@@ -69,9 +69,6 @@ fun ResolvedCall<*>.getExplicitReceiverValue(): ReceiverValue? {
     }
 }
 
-fun ResolvedCall<*>.getImplicitReceiverValue(): ImplicitReceiver? =
-    getImplicitReceivers().firstOrNull() as? ImplicitReceiver
-
 fun ResolvedCall<*>.getImplicitReceivers(): Collection<ReceiverValue> =
     when (explicitReceiverKind) {
         ExplicitReceiverKind.NO_EXPLICIT_RECEIVER -> listOfNotNull(extensionReceiver, dispatchReceiver)
@@ -90,16 +87,8 @@ private fun ResolvedCall<*>.hasSafeNullableReceiver(context: CallResolutionConte
 fun ResolvedCall<*>.makeNullableTypeIfSafeReceiver(type: KotlinType?, context: CallResolutionContext<*>) =
     type?.let { TypeUtils.makeNullableIfNeeded(type, hasSafeNullableReceiver(context)) }
 
-fun ResolvedCall<*>.hasBothReceivers() = dispatchReceiver != null && extensionReceiver != null
-
 fun ResolvedCall<*>.getDispatchReceiverWithSmartCast(): ReceiverValue? =
     getReceiverValueWithSmartCast(dispatchReceiver, smartCastDispatchReceiverType)
-
-fun KtCallElement.getArgumentByParameterIndex(index: Int, context: BindingContext): List<ValueArgument> {
-    val resolvedCall = getResolvedCall(context) ?: return emptyList()
-    val parameterToProcess = resolvedCall.resultingDescriptor.valueParameters.getOrNull(index) ?: return emptyList()
-    return resolvedCall.valueArguments[parameterToProcess]?.arguments ?: emptyList()
-}
 
 fun CallableDescriptor.isNotSimpleCall(): Boolean =
     typeParameters.isNotEmpty() ||

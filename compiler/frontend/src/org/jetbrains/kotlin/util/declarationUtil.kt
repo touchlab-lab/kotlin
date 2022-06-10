@@ -26,14 +26,6 @@ fun KtElement.containingNonLocalDeclaration(): KtDeclaration? {
     return container
 }
 
-val KtDeclaration.isOrdinaryClass
-    get() = this is KtClass &&
-            !this.hasModifier(KtTokens.INLINE_KEYWORD) &&
-            !this.isAnnotation() &&
-            !this.isInterface()
-
-val KtDeclaration.isAnnotated get() = this.annotationEntries.isNotEmpty()
-
 /**
  * Given a fake override, returns an overridden non-abstract function from an interface which is the actual implementation of this function
  * that should be called when the given fake override is called.

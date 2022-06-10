@@ -47,32 +47,6 @@ import org.jetbrains.kotlin.utils.sure
 
 // resolved call
 
-fun <D : CallableDescriptor> ResolvedCall<D>.noErrorsInValueArguments(): Boolean {
-    return call.valueArguments.all { argument -> !getArgumentMapping(argument!!).isError() }
-}
-
-fun <D : CallableDescriptor> ResolvedCall<D>.hasUnmappedArguments(): Boolean {
-    return call.valueArguments.any { argument -> getArgumentMapping(argument!!) == ArgumentUnmapped }
-}
-
-fun <D : CallableDescriptor> ResolvedCall<D>.hasUnmappedParameters(): Boolean {
-    val parameterToArgumentMap = valueArguments
-    return !parameterToArgumentMap.keys.containsAll(resultingDescriptor.valueParameters)
-}
-
-fun <D : CallableDescriptor> ResolvedCall<D>.allArgumentsMapped() =
-    call.valueArguments.all { argument -> getArgumentMapping(argument) is ArgumentMatch }
-
-fun <D : CallableDescriptor> ResolvedCall<D>.hasTypeMismatchErrorOnParameter(parameter: ValueParameterDescriptor): Boolean {
-    val resolvedValueArgument = valueArguments[parameter]
-    if (resolvedValueArgument == null) return true
-
-    return resolvedValueArgument.arguments.any { argument ->
-        val argumentMapping = getArgumentMapping(argument)
-        argumentMapping is ArgumentMatch && argumentMapping.status == ArgumentMatchStatus.TYPE_MISMATCH
-    }
-}
-
 fun <D : CallableDescriptor> ResolvedCall<D>.getParameterForArgument(valueArgument: ValueArgument?): ValueParameterDescriptor? {
     return (valueArgument?.let { getArgumentMapping(it) } as? ArgumentMatch)?.valueParameter
 }
@@ -102,10 +76,6 @@ fun Call.hasUnresolvedArguments(bindingContext: BindingContext, statementFilter:
         return expressionType == null || expressionType.isError
     })
 }
-
-fun Call.getValueArgumentsInParentheses(): List<ValueArgument> = valueArguments.filterArgsInParentheses()
-
-fun KtCallElement.getValueArgumentsInParentheses(): List<ValueArgument> = valueArguments.filterArgsInParentheses()
 
 fun Call.getValueArgumentListOrElement(): KtElement =
     if (this is CallTransformer.CallForImplicitInvoke) {
@@ -202,10 +172,6 @@ fun KtElement?.getResolvedCall(context: BindingContext): ResolvedCall<out Callab
 
 fun KtElement?.getParentResolvedCall(context: BindingContext, strict: Boolean = true): ResolvedCall<out CallableDescriptor>? {
     return this?.getParentCall(context, strict)?.getResolvedCall(context)
-}
-
-fun KtElement.getCallWithAssert(context: BindingContext): Call {
-    return getCall(context).sure { "No call for ${this.getTextWithLocation()}" }
 }
 
 fun KtElement.getResolvedCallWithAssert(context: BindingContext): ResolvedCall<out CallableDescriptor> {
@@ -331,16 +297,6 @@ inline fun BindingTrace.reportTrailingLambdaErrorOr(
         } else {
             report(originalDiagnostic(expr))
         }
-    }
-}
-
-fun NewTypeSubstitutor.toOldSubstitution(): TypeSubstitution = object : TypeSubstitution() {
-    override fun get(key: KotlinType): TypeProjection? {
-        return safeSubstitute(key.unwrap()).takeIf { it !== key }?.asTypeProjection()
-    }
-
-    override fun isEmpty(): Boolean {
-        return isEmpty
     }
 }
 
