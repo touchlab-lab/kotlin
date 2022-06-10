@@ -1,5 +1,4 @@
 // !CHECK_TYPE
-// NI_EXPECTED_FILE
 
 val x get() = x
 
