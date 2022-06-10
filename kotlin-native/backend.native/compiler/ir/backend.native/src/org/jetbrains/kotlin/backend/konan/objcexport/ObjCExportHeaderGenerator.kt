@@ -8,7 +8,6 @@ package org.jetbrains.kotlin.backend.konan.objcexport
 import org.jetbrains.kotlin.backend.common.serialization.findSourceFile
 import org.jetbrains.kotlin.backend.konan.*
 import org.jetbrains.kotlin.backend.konan.descriptors.*
-import org.jetbrains.kotlin.backend.konan.optimizations.DataFlowIR
 import org.jetbrains.kotlin.builtins.*
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns.isAny
 import org.jetbrains.kotlin.descriptors.*
@@ -746,7 +745,7 @@ internal class ObjCExportTranslatorImpl(
     }
 
     private fun buildComment(method: FunctionDescriptor, bridge: MethodBridge, parameters: List<ObjCParameter>): ObjCComment? {
-        val throwsCommentLines = if (method.isSuspend || bridge.returnsError) {
+        val throwsComments = if (method.isSuspend || bridge.returnsError) {
             val effectiveThrows = getEffectiveThrows(method).toSet()
             when {
                 effectiveThrows.contains(throwableClassId) -> {
@@ -771,10 +770,15 @@ internal class ObjCExportTranslatorImpl(
             }
         } else emptyList()
 
+        val visibilityComments = when (method.visibility) {
+            DescriptorVisibilities.PROTECTED -> listOf("@note This method has PROTECTED visibility in Kotlin source and is intended only for use by subclasses.")
+            else -> emptyList()
+        }
         val paramComments = parameters.flatMap { parameter ->
             parameter.descriptor?.let { mustBeDocumentedParamAttributeList(parameter, descriptor = it) } ?: emptyList()
         }
-        return objCCommentOrNull(mustBeDocumentedAttributeList(method.annotations) + paramComments + throwsCommentLines)
+        val annotationsComments = mustBeDocumentedAttributeList(method.annotations)
+        return objCCommentOrNull(annotationsComments + paramComments + throwsComments + visibilityComments)
     }
 
     private fun mustBeDocumentedParamAttributeList(parameter: ObjCParameter, descriptor: ParameterDescriptor): List<String> {

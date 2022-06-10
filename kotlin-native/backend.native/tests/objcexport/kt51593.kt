@@ -2,6 +2,10 @@
  * Copyright 2010-2022 JetBrains s.r.o. and Kotlin Programming Language contributors.
  * Use of this source code is governed by the Apache 2.0 license that can be found in the license/LICENSE.txt file.
  */
+@file:MyCustomFileAspect(type = "kt")
+
+@Target(AnnotationTarget.FILE)
+annotation class MyCustomFileAspect(val type: String = "kt")
 
 annotation class NoDoc
 @MustBeDocumented
@@ -31,7 +35,7 @@ class Bar {
      *  @param fooParam is second arg
      * @return their sum
      */
-    suspend fun baz (@NoDoc nodocParam:Int, @Foo @BugReport(assignedTo = "me", status = "fixed") fooParam:Int): Int { return nodocParam + fooParam }
+    protected suspend fun baz (@NoDoc nodocParam:Int, @Foo @BugReport(assignedTo = "me", status = "fixed") fooParam:Int): Int { return nodocParam + fooParam }
 
     /** My property
      ***
