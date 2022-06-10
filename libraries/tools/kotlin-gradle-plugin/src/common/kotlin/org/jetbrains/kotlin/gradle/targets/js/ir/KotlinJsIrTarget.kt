@@ -144,10 +144,29 @@ constructor(
 
             task.from(project.tasks.named(compilation.processResourcesTaskName))
 
-            task.into(
-                npmProject.dist
-            )
+            task.into(npmProject.dist)
         }
+    }
+
+    //Binaryen
+    private val useBinaryenHandlers = mutableListOf<() -> Unit>()
+
+    private var usingBinaryen: Boolean = false
+
+    override fun whenUsingBinaryen(body: () -> Unit) {
+        if (usingBinaryen) {
+            body()
+        } else {
+            useBinaryenHandlers += body
+        }
+    }
+
+    override fun useBinaryen() {
+        usingBinaryen = true
+        useBinaryenHandlers.forEach { handler ->
+            handler()
+        }
+        browserConfiguredHandlers.clear()
     }
 
     //Browser
