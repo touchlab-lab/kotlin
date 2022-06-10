@@ -238,7 +238,7 @@ internal class ObjCExportTranslatorImpl(
         val name = translateClassOrInterfaceName(descriptor)
         val members: List<Stub<*>> = buildMembers { translateInterfaceMembers(descriptor) }
         val superProtocols: List<String> = descriptor.superProtocols
-        val comment = nullableObjCComment(mustBeDocumentedAnnotations(descriptor.annotations))
+        val comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations))
 
         return objCProtocol(name, descriptor, superProtocols, members, comment = comment)
     }
@@ -429,7 +429,7 @@ internal class ObjCExportTranslatorImpl(
                 superProtocols = superProtocols,
                 members = members,
                 attributes = attributes,
-                comment = nullableObjCComment(mustBeDocumentedAnnotations(descriptor.annotations))
+                comment = objCCommentOrNull(mustBeDocumentedAnnotations(descriptor.annotations))
         )
     }
 
@@ -616,7 +616,7 @@ internal class ObjCExportTranslatorImpl(
         declarationAttributes.addIfNotNull(mapper.getDeprecation(property)?.toDeprecationAttribute())
 
         val commentLines = mustBeDocumentedAnnotations(property.annotations)
-        return ObjCProperty(name, property, type, attributes, setterName, getterName, declarationAttributes, nullableObjCComment(commentLines))
+        return ObjCProperty(name, property, type, attributes, setterName, getterName, declarationAttributes, objCCommentOrNull(commentLines))
     }
 
     internal fun buildMethod(
@@ -773,19 +773,23 @@ internal class ObjCExportTranslatorImpl(
 
         val paramComments = parameters.flatMap {parameter ->
             if (parameter.descriptor != null)
-                mustBeDocumentedAnnotations(parameter.descriptor.annotations).map { "@param $it ${parameter.name}" }
+                mustBeDocumentedAnnotations(parameter.descriptor.annotations).map { "@param ${parameter.name} $it" }
             else emptyList()
         }
-        return nullableObjCComment(mustBeDocumentedAnnotations(method.annotations) + paramComments + throwsCommentLines)
+        return objCCommentOrNull(mustBeDocumentedAnnotations(method.annotations) + paramComments + throwsCommentLines)
     }
 
-    private fun nullableObjCComment(commentLines: List<String>): ObjCComment? {
+    private fun objCCommentOrNull(commentLines: List<String>): ObjCComment? {
         return if (commentLines.isNotEmpty()) ObjCComment(commentLines) else null
     }
 
-    private fun mapToString(map: Map<Name, ConstantValue<*>>): String {
-        if (map.isEmpty()) return ""
-        return map.toString()
+    private fun valueArgumentsToString(arguments: Map<Name, ConstantValue<*>>): String {
+        if (arguments.isEmpty()) return ""
+        return buildString {
+            append('(')
+            append(arguments.map { it.toString() }.joinToString(","))
+            append(')')
+        }
     }
 
     private fun mustBeDocumentedAnnotations(annotations: Annotations): List<String> {
@@ -795,7 +799,7 @@ internal class ObjCExportTranslatorImpl(
             listOfNotNull(it.annotationClass).flatMap { annotationClass ->
                 if (!stopList.contains(annotationClass.fqNameSafe.toString()) &&
                         annotationClass.annotations.any { metaAnnotation -> metaAnnotation.fqName?.toString() == mustBeDocumentedClassName })
-                    listOf("@${annotationClass.fqNameSafe}${mapToString(it.allValueArguments)}")
+                    listOf("@${annotationClass.fqNameSafe}${valueArgumentsToString(it.allValueArguments)}")
                 else emptyList()
             }
         }
