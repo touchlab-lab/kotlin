@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.symbols.IrClassifierSymbol
 import org.jetbrains.kotlin.ir.symbols.IrTypeAliasSymbol
 import org.jetbrains.kotlin.ir.types.impl.IrErrorClassImpl
 import org.jetbrains.kotlin.ir.types.impl.IrTypeBase
+import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.Variance
 import org.jetbrains.kotlin.types.model.*
@@ -30,9 +31,13 @@ abstract class IrType : KotlinTypeMarker, IrAnnotationContainer {
     abstract override fun hashCode(): Int
 }
 
-abstract class IrErrorType(kotlinType: KotlinType?, private val errorClassStubSymbol: IrClassSymbol? = null) : IrTypeBase(kotlinType), SimpleTypeMarker {
+abstract class IrErrorType(
+    kotlinType: KotlinType?,
+    val isMarkedNullable: Boolean = false,
+    private val errorClassStubSymbol: IrClassSymbol? = null
+) : IrTypeBase(kotlinType), SimpleTypeMarker {
     val symbol: IrClassSymbol
-        get() = IrErrorClassImpl.symbol//errorClassStubSymbol ?: error("123")
+        get() = errorClassStubSymbol ?: error("Symbol in not bind for error type " + (this as IrType).render())
 }
 
 abstract class IrDynamicType(kotlinType: KotlinType?) : IrTypeBase(kotlinType), DynamicTypeMarker

@@ -95,7 +95,13 @@ abstract class TypeTranslator(
 
         when {
             approximatedType.isError ->
-                return IrErrorTypeImpl(approximatedType, translateTypeAnnotations(approximatedType), variance)
+                return IrErrorTypeImpl(
+                    approximatedType,
+                    translateTypeAnnotations(approximatedType),
+                    variance,
+                    isMarkedNullable = approximatedType.isMarkedNullable,
+                    IrErrorClassImpl().symbol
+                )
             approximatedType.isDynamic() ->
                 return IrDynamicTypeImpl(approximatedType, translateTypeAnnotations(approximatedType), variance)
             supportDefinitelyNotNullTypes && approximatedType is DefinitelyNotNullType ->
