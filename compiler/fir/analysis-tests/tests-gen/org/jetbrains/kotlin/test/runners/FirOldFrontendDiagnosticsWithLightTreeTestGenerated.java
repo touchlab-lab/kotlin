@@ -24393,6 +24393,12 @@ public class FirOldFrontendDiagnosticsWithLightTreeTestGenerated extends Abstrac
             }
 
             @Test
+            @TestMetadata("KotlinVsJava.kt")
+            public void testKotlinVsJava() throws Exception {
+                runTest("compiler/testData/diagnostics/tests/redeclarations/KotlinVsJava.kt");
+            }
+
+            @Test
             @TestMetadata("kt2418.kt")
             public void testKt2418() throws Exception {
                 runTest("compiler/testData/diagnostics/tests/redeclarations/kt2418.kt");
