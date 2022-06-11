@@ -100,7 +100,8 @@ class FileVisitorBuilderTest : AbstractPathTest() {
         }
 
         var didFail = false
-        val visitor = fileVisitor {
+
+        basedir.visitFileTree {
             visitFileFailed { file, exception ->
                 assertEquals(restrictedDir, file)
                 assertIs<AccessDeniedException>(exception)
@@ -111,8 +112,6 @@ class FileVisitorBuilderTest : AbstractPathTest() {
             }
         }
 
-        basedir.visitFileTree(visitor)
-
         assertTrue(didFail)
     }
 
@@ -120,8 +119,9 @@ class FileVisitorBuilderTest : AbstractPathTest() {
     fun skipDirectory() {
         val basedir = createTestFiles().cleanupRecursively()
         val dirToSkip = basedir.resolve("1/3")
+        val visitedFiles = mutableListOf<Path>()
 
-        val visitor = fileVisitor {
+        basedir.visitFileTree {
             preVisitDirectory { directory, _ ->
                 if (directory == dirToSkip)
                     FileVisitResult.SKIP_SUBTREE
@@ -131,11 +131,14 @@ class FileVisitorBuilderTest : AbstractPathTest() {
 
             visitFile { file, _ ->
                 assertTrue(file.parent != dirToSkip)
+
+                visitedFiles.add(file)
+
                 FileVisitResult.CONTINUE
             }
         }
 
-        basedir.visitFileTree(visitor)
+        testVisitedFiles(listOf("7.txt", "8/9.txt"), visitedFiles.asSequence(), basedir)
     }
 
     @Test
@@ -185,7 +188,7 @@ class FileVisitorBuilderTest : AbstractPathTest() {
         srcRoot.resolve("1/2/.dir").createDirectory()
         srcRoot.resolve("1/3/.file").createFile()
 
-        val visitor = fileVisitor {
+        srcRoot.visitFileTree {
             preVisitDirectory { directory, _ ->
                 if (directory.name.startsWith(".")) {
                     FileVisitResult.SKIP_SUBTREE
@@ -207,8 +210,6 @@ class FileVisitorBuilderTest : AbstractPathTest() {
             }
         }
 
-        srcRoot.visitFileTree(visitor)
-
         val dstWalk = dstRoot.walk(PathWalkOption.INCLUDE_DIRECTORIES)
         testVisitedFiles(referenceFilenames + listOf(""), dstWalk, dstRoot)
         val srcWalk = srcRoot.walk(PathWalkOption.INCLUDE_DIRECTORIES)
@@ -219,7 +220,7 @@ class FileVisitorBuilderTest : AbstractPathTest() {
     fun deleteRecursively() {
         val basedir = createTestFiles()
 
-        val visitor = fileVisitor {
+        basedir.visitFileTree {
             visitFile { file, _ ->
                 file.deleteExisting()
                 FileVisitResult.CONTINUE
@@ -230,8 +231,6 @@ class FileVisitorBuilderTest : AbstractPathTest() {
                 FileVisitResult.CONTINUE
             }
         }
-
-        basedir.visitFileTree(visitor)
 
         assertFalse(basedir.exists())
     }

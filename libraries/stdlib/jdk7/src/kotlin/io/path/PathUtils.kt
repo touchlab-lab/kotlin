@@ -1039,6 +1039,32 @@ public fun Path.visitFileTree(visitor: FileVisitor<Path>, maxDepth: Int = Int.MA
 }
 
 /**
+ * Visits this directory and all its content with the [FileVisitor] defined in [builderAction].
+ *
+ * This function works the same as [Path.visitFileTree]. It is introduced to streamline
+ * the cases when a [FileVisitor] is created only to be immediately used for a file tree traversal.
+ * The trailing lambda [builderAction] is passed to [fileVisitor] to get the file visitor.
+ *
+ * @param maxDepth the maximum depth to traverse. By default, there is no limit.
+ * @param followLinks specifies whether to follow symbolic links, `false` by default.
+ * @param builderAction the function that defines [FileVisitor].
+ *
+ * @see Path.visitFileTree
+ * @see fileVisitor
+ *
+ * @sample samples.io.Path.fileVisitor
+ */
+@ExperimentalPathApi
+@SinceKotlin("1.7")
+public fun Path.visitFileTree(
+    maxDepth: Int = Int.MAX_VALUE,
+    followLinks: Boolean = false,
+    builderAction: FileVisitorBuilder.() -> Unit
+): Unit {
+    visitFileTree(fileVisitor(builderAction), maxDepth, followLinks)
+}
+
+/**
  * Builds a [FileVisitor] whose implementation is defined in [builderAction].
  *
  * By default, the returned file visitor visits all files and re-throws I/O errors, that is:
