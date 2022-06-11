@@ -1001,7 +1001,7 @@ public inline fun URI.toPath(): Path =
 
 
 /**
- * Returns a sequence for visiting this directory and all its content.
+ * Returns a sequence of paths for visiting this directory and all its content.
  *
  * By default, only files are visited, in depth-first order, and symbolic links are not followed.
  * The combination of [options] overrides the default behavior. See [PathWalkOption].
