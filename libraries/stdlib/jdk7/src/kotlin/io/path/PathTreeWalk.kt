@@ -102,6 +102,10 @@ private fun keyOf(path: Path, linkOptions: Array<LinkOption>): Any? {
     }
 }
 
+private class PathNode(val path: Path, val key: Any?, val parent: PathNode?) {
+    var contentIterator: Iterator<Path>? = null
+}
+
 private fun PathNode.createsCycle(): Boolean {
     var ancestor = parent
     while (ancestor != null) {
@@ -120,10 +124,6 @@ private fun PathNode.createsCycle(): Boolean {
     }
 
     return false
-}
-
-private class PathNode(val path: Path, val key: Any?, val parent: PathNode?) {
-    var contentIterator: Iterator<Path>? = null
 }
 
 private object LinkFollowing {
