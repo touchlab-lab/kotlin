@@ -1,3 +1,7 @@
-class B : A {
-    override fun foo(): String = "OK" // does not call super
+class C2 : C() {
+    override fun foo(): String = "O" // does not call super
+}
+
+class I2 : I {
+    override fun foo(): String = "K" // does not call super
 }

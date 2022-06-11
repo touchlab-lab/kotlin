@@ -1,3 +1,3 @@
 fun box(): String {
-    return B().foo()
+    return C2().foo() + I2().foo()
 }

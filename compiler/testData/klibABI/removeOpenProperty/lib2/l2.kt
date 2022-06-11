@@ -1,3 +1,7 @@
-class B : A {
-    override val foo: String get() = "OK" // does not call super
+class C2 : C() {
+    override val foo: String get() = "O" // does not call super
+}
+
+class I2 : I {
+    override val foo: String get() = "K" // does not call super
 }
