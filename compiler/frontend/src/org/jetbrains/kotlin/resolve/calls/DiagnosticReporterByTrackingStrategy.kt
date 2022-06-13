@@ -419,13 +419,13 @@ class DiagnosticReporterByTrackingStrategy(
     }
 
     private fun reportCallableReferenceConstraintError(
-        error: NewConstraintMismatch,
+        error: ConstraintMismatch,
         rhsExpression: KtSimpleNameExpression
     ) {
         trace.report(TYPE_MISMATCH.on(rhsExpression, error.lowerKotlinType, error.upperKotlinType))
     }
 
-    private fun reportConstraintErrorByPosition(error: NewConstraintMismatch, position: ConstraintPosition) {
+    private fun reportConstraintErrorByPosition(error: ConstraintMismatch, position: ConstraintPosition) {
         if (position is CallableReferenceConstraintPositionImpl) {
             val callableReferenceExpression = position.callableReferenceCall.call.extractCallableReferenceExpression()
 
@@ -444,7 +444,7 @@ class DiagnosticReporterByTrackingStrategy(
                 is LambdaArgumentConstraintPositionImpl -> position.lambda.atom
                 else -> null
             }
-        val isWarning = error is NewConstraintWarning
+        val isWarning = error is ConstraintWarning
         val typeMismatchDiagnostic = if (isWarning) TYPE_MISMATCH_WARNING else TYPE_MISMATCH
         val report = if (isWarning) trace::reportDiagnosticOnce else trace::report
         argument?.let {
@@ -505,7 +505,7 @@ class DiagnosticReporterByTrackingStrategy(
         (position as? FixVariableConstraintPositionImpl)?.let {
             val morePreciseDiagnosticExists = allDiagnostics.any { other ->
                 val otherError = other.constraintSystemError ?: return@any false
-                otherError is NewConstraintError && otherError.position.from !is FixVariableConstraintPositionImpl
+                otherError is ConstraintError && otherError.position.from !is FixVariableConstraintPositionImpl
             }
             if (morePreciseDiagnosticExists) return
 
@@ -518,8 +518,8 @@ class DiagnosticReporterByTrackingStrategy(
 
     override fun constraintError(error: ConstraintSystemError) {
         when (error.javaClass) {
-            NewConstraintError::class.java, NewConstraintWarning::class.java -> {
-                reportConstraintErrorByPosition(error as NewConstraintMismatch, error.position.from)
+            ConstraintError::class.java, ConstraintWarning::class.java -> {
+                reportConstraintErrorByPosition(error as ConstraintMismatch, error.position.from)
             }
 
             CapturedTypeFromSubtyping::class.java -> {
@@ -567,7 +567,7 @@ class DiagnosticReporterByTrackingStrategy(
                         is KotlinConstraintSystemDiagnostic -> {
                             val otherError = it.error
                             (otherError is ConstrainingTypeIsError && otherError.typeVariable == error.typeVariable)
-                                    || otherError is NewConstraintError
+                                    || otherError is ConstraintError
                         }
                         else -> false
                     }
@@ -746,7 +746,7 @@ class DiagnosticReporterByTrackingStrategy(
         }
     }
 
-    private fun reportConstantTypeMismatch(constraintError: NewConstraintMismatch, expression: KtExpression): Boolean {
+    private fun reportConstantTypeMismatch(constraintError: ConstraintMismatch, expression: KtExpression): Boolean {
         if (expression is KtConstantExpression) {
             val module = context.scope.ownerDescriptor.module
             val constantValue = constantExpressionEvaluator.evaluateToConstantValue(expression, trace, context.expectedType)
@@ -759,5 +759,5 @@ class DiagnosticReporterByTrackingStrategy(
 
 }
 
-val NewConstraintMismatch.upperKotlinType get() = upperType as KotlinType
-val NewConstraintMismatch.lowerKotlinType get() = lowerType as KotlinType
+val ConstraintMismatch.upperKotlinType get() = upperType as KotlinType
+val ConstraintMismatch.lowerKotlinType get() = lowerType as KotlinType
