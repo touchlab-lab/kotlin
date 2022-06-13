@@ -27,7 +27,7 @@ val test1 = generate {
     baseExtension()
 }
 
-val test2 = <!NEW_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>generate<!> {
+val test2 = <!TYPE_INFERENCE_NO_INFORMATION_FOR_PARAMETER!>generate<!> {
     baseExtension()
 }
 
