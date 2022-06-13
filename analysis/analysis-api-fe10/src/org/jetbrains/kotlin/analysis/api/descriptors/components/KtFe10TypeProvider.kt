@@ -180,7 +180,7 @@ internal class KtFe10TypeProvider(
                 }
 
                 val typeConstructor = type.constructor
-                if (typeConstructor is NewTypeVariableConstructor) {
+                if (typeConstructor is TypeVariableTypeConstructor) {
                     return typeConstructor.originalTypeParameter?.upperBounds.orEmpty().flatMap { getUpperBounds(it) }
                 }
                 if (typeConstructor is IntersectionTypeConstructor) {
@@ -288,7 +288,7 @@ internal class KtFe10TypeProvider(
                 }
 
                 return when (val typeConstructor = this.constructor) {
-                    is NewTypeVariableConstructor -> emptySet()
+                    is TypeVariableTypeConstructor -> emptySet()
                     is IntersectionTypeConstructor -> typeConstructor.supertypes.flatMapTo(mutableSetOf()) { it.collectLowerBounds() }
                     else -> setOf(this)
                 }
@@ -311,7 +311,7 @@ internal class KtFe10TypeProvider(
                 }
 
                 return when (val typeConstructor = this.constructor) {
-                    is NewTypeVariableConstructor -> typeConstructor.supertypes.flatMapTo(mutableSetOf()) { it.collectUpperBounds() }
+                    is TypeVariableTypeConstructor -> typeConstructor.supertypes.flatMapTo(mutableSetOf()) { it.collectUpperBounds() }
                     is IntersectionTypeConstructor -> typeConstructor.supertypes.flatMapTo(mutableSetOf()) { it.collectUpperBounds() }
                     else -> setOf(this)
                 }
