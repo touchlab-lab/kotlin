@@ -3077,6 +3077,12 @@ public class FirIdeSpecTest extends AbstractDiagnosisCompilerTestDataSpecTest {
                         }
 
                         @Test
+                        @TestMetadata("5.2.kt")
+                        public void test5_2() throws Exception {
+                            runTest("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/neg/5.2.kt");
+                        }
+
+                        @Test
                         @TestMetadata("7.1.kt")
                         public void test7_1() throws Exception {
                             runTest("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/neg/7.1.kt");

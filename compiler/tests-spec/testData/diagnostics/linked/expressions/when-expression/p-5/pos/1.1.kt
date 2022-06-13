@@ -55,7 +55,7 @@ fun case_4(value_1: Int, value_2: String, value_3: String) {
 }
 
 // TESTCASE NUMBER: 5
-fun case_5(value_1: Int, value_2: Int, value_3: Boolean?) {
+fun case_5(value_1: Int, <!UNUSED_PARAMETER!>value_2<!>: Int, value_3: Boolean?) {
     when (value_1) {
         1 -> when (value_3) {
             else -> "3"
@@ -83,7 +83,7 @@ fun case_5(value_1: Int, value_2: Int, value_3: Boolean?) {
 }
 
 // TESTCASE NUMBER: 6
-fun case_6(value_1: Int, value_2: Int, value_3: Boolean?) = when (value_1) {
+fun case_6(value_1: Int, <!UNUSED_PARAMETER!>value_2<!>: Int, value_3: Boolean?) = when (value_1) {
     1 -> when (value_3) {
         else -> 3
     }

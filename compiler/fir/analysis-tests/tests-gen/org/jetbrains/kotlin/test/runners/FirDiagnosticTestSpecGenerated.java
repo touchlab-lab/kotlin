@@ -3017,6 +3017,16 @@ public class FirDiagnosticTestSpecGenerated extends AbstractFirDiagnosticTestSpe
                     }
 
                     @Nested
+                    @TestMetadata("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-5/neg")
+                    @TestDataPath("$PROJECT_ROOT")
+                    public class Neg {
+                        @Test
+                        public void testAllFilesPresentInNeg() throws Exception {
+                            KtTestUtil.assertAllTestsPresentByMetadataWithExcluded(this.getClass(), new File("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-5/neg"), Pattern.compile("^(.+)\\.kt$"), Pattern.compile("^(.+)\\.fir\\.kts?$"), true);
+                        }
+                    }
+
+                    @Nested
                     @TestMetadata("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-5/pos")
                     @TestDataPath("$PROJECT_ROOT")
                     public class Pos {
@@ -3074,6 +3084,12 @@ public class FirDiagnosticTestSpecGenerated extends AbstractFirDiagnosticTestSpe
                         @TestMetadata("3.2.kt")
                         public void test3_2() throws Exception {
                             runTest("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/neg/3.2.kt");
+                        }
+
+                        @Test
+                        @TestMetadata("5.2.kt")
+                        public void test5_2() throws Exception {
+                            runTest("compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/neg/5.2.kt");
                         }
 
                         @Test

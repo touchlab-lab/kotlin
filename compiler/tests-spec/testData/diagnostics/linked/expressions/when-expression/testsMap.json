@@ -125,6 +125,15 @@
       ],
       "5": [
         {
+          "specVersion": "0.1-435",
+          "casesNumber": 1,
+          "description": "\u0027When\u0027 with different variants of the arithmetic expressions (additive expression and multiplicative expression) in \u0027when condition\u0027.",
+          "path": "compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/neg/5.2.kt",
+          "unexpectedBehaviour": false,
+          "linkType": "main",
+          "helpers": "typesProvider, classes, functions"
+        },
+        {
           "specVersion": "0.1-152",
           "casesNumber": 0,
           "description": "When",
@@ -317,7 +326,7 @@
         },
         {
           "specVersion": "0.1-435",
-          "casesNumber": 26,
+          "casesNumber": 25,
           "description": "\u0027When\u0027 with different variants of the arithmetic expressions (additive expression and multiplicative expression) in \u0027when condition\u0027.",
           "path": "compiler/tests-spec/testData/diagnostics/linked/expressions/when-expression/p-6/pos/5.2.kt",
           "unexpectedBehaviour": true,
