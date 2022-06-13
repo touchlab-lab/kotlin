@@ -1,3 +1,4 @@
+// FIR_IDENTICAL
 class A {
     operator fun rangeUntil(other: A): Iterable<A> = TODO()
 }
