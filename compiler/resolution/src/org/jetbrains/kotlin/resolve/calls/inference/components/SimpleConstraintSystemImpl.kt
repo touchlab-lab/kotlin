@@ -21,7 +21,7 @@ import org.jetbrains.kotlin.config.LanguageVersionSettings
 import org.jetbrains.kotlin.descriptors.TypeParameterDescriptor
 import org.jetbrains.kotlin.resolve.calls.components.ClassicTypeSystemContextForCS
 import org.jetbrains.kotlin.resolve.calls.inference.ConstraintSystemBuilder
-import org.jetbrains.kotlin.resolve.calls.inference.model.NewConstraintSystemImpl
+import org.jetbrains.kotlin.resolve.calls.inference.model.ConstraintSystemImpl
 import org.jetbrains.kotlin.resolve.calls.inference.model.SimpleConstraintSystemConstraintPosition
 import org.jetbrains.kotlin.resolve.calls.inference.model.TypeVariableFromCallableDescriptor
 import org.jetbrains.kotlin.resolve.calls.inference.substitute
@@ -37,7 +37,7 @@ class SimpleConstraintSystemImpl(
     kotlinTypeRefiner: KotlinTypeRefiner,
     languageVersionSettings: LanguageVersionSettings
 ) : SimpleConstraintSystem {
-    val system = NewConstraintSystemImpl(
+    val system = ConstraintSystemImpl(
         constraintInjector, ClassicTypeSystemContextForCS(builtIns, kotlinTypeRefiner), languageVersionSettings
     )
     val csBuilder: ConstraintSystemBuilder =
