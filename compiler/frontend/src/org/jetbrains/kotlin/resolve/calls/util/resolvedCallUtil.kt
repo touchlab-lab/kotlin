@@ -7,10 +7,8 @@ package org.jetbrains.kotlin.resolve.calls.util
 
 import org.jetbrains.kotlin.descriptors.CallableDescriptor
 import org.jetbrains.kotlin.descriptors.DeclarationDescriptor
-import org.jetbrains.kotlin.psi.KtCallElement
 import org.jetbrains.kotlin.psi.KtPsiUtil
 import org.jetbrains.kotlin.psi.KtThisExpression
-import org.jetbrains.kotlin.psi.ValueArgument
 import org.jetbrains.kotlin.resolve.BindingContext
 import org.jetbrains.kotlin.resolve.calls.context.CallResolutionContext
 import org.jetbrains.kotlin.resolve.calls.model.ResolvedCall
@@ -93,7 +91,7 @@ fun CallableDescriptor.isNotSimpleCall(): Boolean =
     typeParameters.isNotEmpty() ||
             (returnType?.let { type ->
                 type.contains {
-                    it is NewCapturedType ||
+                    it is CapturedType ||
                             it.constructor is IntegerLiteralTypeConstructor ||
                             it is DefinitelyNotNullType ||
                             it is StubTypeForBuilderInference
