@@ -1116,7 +1116,8 @@ public fun Path.copyToRecursively(
         val dst = target.resolve(src.relativeTo(this))
         copyAction(src, dst)
     }.onFile { _, src ->
-        copyAction(src, target.resolve(src.relativeTo(this)))
+        val dst = target.resolve(src.relativeTo(this))
+        copyAction(src, dst)
     }.onFail { _, exception ->
         suppressedExceptions.add(exception)
     }.walk(this)
@@ -1157,6 +1158,7 @@ public fun Path.copyToRecursively(
  */
 public fun Path.deleteRecursively(followLinks: Boolean = false): Unit {
     val suppressedExceptions = mutableListOf<Throwable>()
+    val notEmptyDirectoriesToSkip = hashSetOf<Path>()
 
     SecurePathTreeWalk(followLinks).onFile { secureDirectoryStream, file ->
         if (secureDirectoryStream != null) {
@@ -1165,14 +1167,16 @@ public fun Path.deleteRecursively(followLinks: Boolean = false): Unit {
             file.deleteIfExists() // deletes symlink itself, not its target
         }
     }.onLeaveDirectory { secureDirectoryStream, dir ->
-        // TODO: See if the directory is not empty, skip deletion as we already have suppressed failure for its children
         if (secureDirectoryStream != null) {
             secureDirectoryStream.deleteDirectory(dir)
         } else {
             dir.deleteIfExists()
         }
-    }.onFail { _, exception ->
-        suppressedExceptions.add(exception)
+    }.onFail { path, exception ->
+        if ((exception is DirectoryNotEmptyException && path in notEmptyDirectoriesToSkip).not()) {
+            suppressedExceptions.add(exception)
+        }
+        path.parent?.let { notEmptyDirectoriesToSkip.add(it) }
     }.walk(this)
 
     if (suppressedExceptions.isNotEmpty()) {

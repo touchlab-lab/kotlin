@@ -73,21 +73,27 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
     @Test
     fun deleteRestrictedWrite() {
         val basedir = createTestFiles().cleanupRecursively()
-        val restricted = basedir.resolve("1").toFile()
+        val restrictedEmptyDir = basedir.resolve("6").toFile()
+        val restrictedDir = basedir.resolve("8").toFile()
+        val restrictedFile = basedir.resolve("1/3/5.txt").toFile()
         try {
-            if (restricted.setWritable(false)) {
-                assertFailsWith<FileSystemException>("Expected incomplete recursive deletion") {
+            if (restrictedDir.setWritable(false) && restrictedDir.setWritable(false) && restrictedFile.setWritable(false)) {
+                val error = assertFailsWith<FileSystemException>("Expected incomplete recursive deletion") {
                     basedir.deleteRecursively()
                 }
-                assertTrue(restricted.exists())
+                // test that DirectoryNotEmptyException is not thrown from parent directory
+                assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
 
-                restricted.setWritable(true)
-                basedir.deleteRecursively()
+                assertFalse(restrictedEmptyDir.exists()) // empty directories can be removed without write permission
+                assertTrue(restrictedDir.exists())
+                assertFalse(restrictedFile.exists()) // plain files can be removed without write permission
             } else {
                 System.err.println("cannot restrict access")
             }
         } finally {
-            restricted.setWritable(true)
+            restrictedEmptyDir.setWritable(true)
+            restrictedDir.setWritable(true)
+            restrictedFile.setWritable(true)
         }
     }
 
@@ -164,11 +170,14 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         assertFailsWith<java.nio.file.FileSystemException> {
             basedir.deleteRecursively(followLinks = true)
         }.let { exception ->
-            assertEquals(4, exception.suppressedExceptions.size)
+            assertEquals(2, exception.suppressedExceptions.size)
             // a loop was detected
             assertIs<java.nio.file.FileSystemLoopException>(exception.suppressedExceptions[0])
-            // directories from root to the file where the loop was detected
-            assertTrue(exception.suppressedExceptions.drop(1).all { it is java.nio.file.DirectoryNotEmptyException })
+
+            // TODO: should have been only one suppressed exception,
+            //  Because links are followed symlink parent is parent of the target, not symlinks itself.
+            //  Thus exception for the symlink parent is not skipped.
+            assertIs<java.nio.file.DirectoryNotEmptyException>(exception.suppressedExceptions[1])
         }
         assertTrue(basedir.exists()) // partial delete have taken place
 
