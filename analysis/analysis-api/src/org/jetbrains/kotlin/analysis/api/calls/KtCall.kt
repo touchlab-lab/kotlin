@@ -461,7 +461,9 @@ public sealed class KtCompoundAccess(private val _operationPartiallyAppliedSymbo
 /**
  * A receiver value of a call.
  */
-public sealed class KtReceiverValue : KtLifetimeOwner
+public sealed class KtReceiverValue : KtLifetimeOwner {
+    public abstract val type: KtType
+}
 
 /**
  * An explicit expression receiver. For example
@@ -471,8 +473,9 @@ public sealed class KtReceiverValue : KtLifetimeOwner
  */
 public class KtExplicitReceiverValue(
     private val _expression: KtExpression,
+    private val _type: KtType,
     private val _isSafeNavigation: Boolean,
-    override val token: KtLifetimeToken
+    override val token: KtLifetimeToken,
 ) : KtReceiverValue() {
     public val expression: KtExpression get() = withValidityAssertion { _expression }
 
@@ -486,6 +489,8 @@ public class KtExplicitReceiverValue(
      * ```
      */
     public val isSafeNavigation: Boolean get() = withValidityAssertion { _isSafeNavigation }
+
+    override val type: KtType get() = withValidityAssertion { _type }
 }
 
 /**
@@ -503,9 +508,14 @@ public class KtExplicitReceiverValue(
  * }
  * ```
  */
-public class KtImplicitReceiverValue(private val _symbol: KtSymbol) : KtReceiverValue() {
+public class KtImplicitReceiverValue(
+    private val _symbol: KtSymbol,
+    private val _type: KtType
+) : KtReceiverValue() {
     override val token: KtLifetimeToken get() = _symbol.token
     public val symbol: KtSymbol get() = withValidityAssertion { _symbol }
+
+    override val type: KtType get() = withValidityAssertion { _type }
 }
 
 /**
@@ -522,5 +532,5 @@ public class KtSmartCastedReceiverValue(private val _original: KtReceiverValue, 
     override val token: KtLifetimeToken
         get() = _original.token
     public val original: KtReceiverValue get() = withValidityAssertion { _original }
-    public val smartCastType: KtType get() = withValidityAssertion { _smartCastType }
+    public override val type: KtType get() = withValidityAssertion { _smartCastType }
 }
