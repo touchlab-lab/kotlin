@@ -110,5 +110,4 @@ public actual annotation class CName(actual val externName: String = "", actual 
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@OptionalExpectation
 actual annotation class FreezingIsDeprecated
