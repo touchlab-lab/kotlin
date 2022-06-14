@@ -83,32 +83,3 @@ public annotation class EagerInitialization
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.BINARY)
 public actual annotation class CName(actual val externName: String = "", actual val shortName: String = "")
-
-/**
- * Freezing API is deprecated since 1.7.20.
- *
- * See [NEW_MM.md#freezing-deprecation](https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md#freezing-deprecation) for details
- */
-// Note: when changing level of deprecation here, also change
-// * `freezing` mode handling in KonanConfig.kt
-// * frontend diagnostics in ErrorsNative.kt
-@SinceKotlin("1.7")
-@RequiresOptIn(
-    message = "Freezing API is deprecated since 1.7.20. See https://github.com/JetBrains/kotlin/blob/master/kotlin-native/NEW_MM.md#freezing-deprecation for details",
-    level = RequiresOptIn.Level.WARNING,
-)
-@Target(
-    AnnotationTarget.CLASS,
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.FIELD,
-    AnnotationTarget.LOCAL_VARIABLE,
-    AnnotationTarget.VALUE_PARAMETER,
-    AnnotationTarget.CONSTRUCTOR,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.TYPEALIAS,
-)
-@OptionalExpectation
-actual annotation class FreezingIsDeprecated

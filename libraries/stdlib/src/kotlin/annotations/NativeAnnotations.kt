@@ -43,5 +43,4 @@ public expect annotation class CName(val externName: String = "", val shortName:
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.TYPEALIAS,
 )
-@OptionalExpectation
-expect annotation class FreezingIsDeprecated
+annotation class FreezingIsDeprecated
