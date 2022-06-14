@@ -729,11 +729,7 @@ class HierarchicalMppIT : KGPBaseTest() {
             }
 
             val configCacheIncompatibleTasks = listOf(
-                ":generateProjectStructureMetadata",
                 ":transformCommonMainDependenciesMetadata",
-                ":cinteropFooLinuxX64",
-                ":compileKotlinLinuxX64",
-                ":linkDebugSharedLinuxX64",
             )
 
             build("clean", "assemble", buildOptions = options) {
