@@ -220,7 +220,6 @@ class KotlinCallResolver(
 
         if (
             maximallySpecificCandidates.size > 1 &&
-            callComponents.languageVersionSettings.supportsFeature(LanguageFeature.OverloadResolutionByLambdaReturnType) &&
             candidates.all { resolutionCallbacks.inferenceSession.shouldRunCompletion(it) } &&
             kotlinCall.callKind != KotlinCallKind.CALLABLE_REFERENCE
         ) {
