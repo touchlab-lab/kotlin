@@ -57,12 +57,13 @@ object AbstractTypeMapper {
         mode: TypeMappingMode = TypeMappingMode.DEFAULT,
         sw: Writer? = null
     ): Type {
-        val typeConstructor = type.typeConstructor()
         if (type.isError()) {
             val jvmType = Type.getObjectType(NON_EXISTENT_CLASS_NAME)
             with(context) { sw?.writeGenericType(type, jvmType, mode) }
             return jvmType
         }
+
+        val typeConstructor = type.typeConstructor()
 
         if (type is SimpleTypeMarker) {
             val builtInType = mapBuiltInType(type, AsmTypeFactory, mode)

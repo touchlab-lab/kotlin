@@ -100,7 +100,7 @@ abstract class TypeTranslator(
                     translateTypeAnnotations(approximatedType),
                     variance,
                     isMarkedNullable = approximatedType.isMarkedNullable,
-                    IrErrorClassImpl().symbol
+                    IrErrorClassImpl.symbol
                 )
             approximatedType.isDynamic() ->
                 return IrDynamicTypeImpl(approximatedType, translateTypeAnnotations(approximatedType), variance)

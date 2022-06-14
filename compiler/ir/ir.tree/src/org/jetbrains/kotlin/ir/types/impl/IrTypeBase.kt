@@ -48,7 +48,7 @@ class IrErrorTypeImpl(
     override fun hashCode(): Int = IrErrorTypeImpl::class.java.hashCode()
 }
 
-class IrErrorClassImpl : IrClassImpl(
+object IrErrorClassImpl : IrClassImpl(
     UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR, IrClassSymbolImpl(ErrorUtils.errorClass),
     Name.special("<error>"), ClassKind.CLASS, DescriptorVisibilities.DEFAULT_VISIBILITY, Modality.FINAL
 ) {

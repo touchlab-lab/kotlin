@@ -280,9 +280,7 @@ val IrClass.isAnonymousObject get() = isClass && name == SpecialNames.NO_NAME_PR
 val IrClass.isNonCompanionObject: Boolean get() = isObject && !isCompanion
 val IrDeclarationWithName.fqNameWhenAvailable: FqName?
     get() {
-        if (this is IrErrorClassImpl) return FqName.ROOT.child(this.name)
         return when (val parent = parent) {
-            is IrErrorClassImpl -> null
             is IrDeclarationWithName -> parent.fqNameWhenAvailable?.child(name)
             is IrPackageFragment -> parent.fqName.child(name)
             else -> null
