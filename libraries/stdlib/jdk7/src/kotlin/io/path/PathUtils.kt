@@ -199,7 +199,7 @@ private object PathRelativizer {
  * When [overwrite] is `true` and [target] is a directory, it is replaced only if it is empty.
  *
  * If this path is a directory, it is copied without its content, i.e. an empty [target] directory is created.
- * If you want to copy directory including its contents, use [copyRecursively].
+ * If you want to copy directory including its contents, use [copyToRecursively].
  *
  * The operation doesn't preserve copied file attributes such as creation/modification date, permissions, etc.
  *
@@ -238,7 +238,7 @@ public inline fun Path.copyTo(target: Path, overwrite: Boolean = false): Path {
  * it is replaced only if it is empty.
  *
  * If this path is a directory, it is copied *without* its content, i.e. an empty [target] directory is created.
- * If you want to copy a directory including its contents, use [copyRecursively].
+ * If you want to copy a directory including its contents, use [copyToRecursively].
  *
  * The operation doesn't preserve copied file attributes such as creation/modification date,
  * permissions, etc. unless [COPY_ATTRIBUTES][StandardCopyOption.COPY_ATTRIBUTES] is used.
@@ -1073,7 +1073,7 @@ public fun fileVisitor(builderAction: FileVisitorBuilder.() -> Unit): FileVisito
  * Unlike `File.copyRecursively`, if some directories on the way to the [target] are missing, then they won't be created automatically.
  * You can use the following approach to ensure that required intermediate directories are created:
  * ```
- * sourcePath.copyRecursively(destinationPath.apply { parent?.createDirectories() })
+ * sourcePath.copyToRecursively(destinationPath.apply { parent?.createDirectories() })
  * ```
  *
  * If this file path points to a single file, then it will be copied to a file with the path [target].
@@ -1092,7 +1092,7 @@ public fun fileVisitor(builderAction: FileVisitorBuilder.() -> Unit): FileVisito
  * @throws NoSuchFileException if the file located by this path does not exist.
  * @throws IOException if any file in the tree can't be copied for any reason.
  */
-public fun Path.copyRecursively(
+public fun Path.copyToRecursively(
     target: Path,
     followLinks: Boolean = false,
     copyAction: (source: Path, target: Path) -> Unit = { src, dst ->
@@ -1135,8 +1135,8 @@ public fun Path.copyRecursively(
 //
 //@OptIn(kotlin.experimental.ExperimentalTypeInference::class)
 //@OverloadResolutionByLambdaReturnType
-//@kotlin.jvm.JvmName("copyRecursivelyCopyActionResult")
-//public fun Path.copyRecursively(
+//@kotlin.jvm.JvmName("copyToRecursivelyCopyActionResult")
+//public fun Path.copyToRecursively(
 //    target: Path,
 //    followLinks: Boolean = false,
 //    copyAction: (source: Path, target: Path) -> CopyActionResult
