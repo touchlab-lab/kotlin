@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.KotlinType
 import org.jetbrains.kotlin.types.Variance
+import org.jetbrains.kotlin.types.error.ErrorUtils
 import org.jetbrains.kotlin.types.model.CaptureStatus
 import org.jetbrains.kotlin.types.model.CapturedTypeConstructorMarker
 import org.jetbrains.kotlin.types.model.CapturedTypeMarker
@@ -48,7 +49,7 @@ class IrErrorTypeImpl(
 }
 
 class IrErrorClassImpl : IrClassImpl(
-    UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR, IrClassSymbolImpl(),
+    UNDEFINED_OFFSET, UNDEFINED_OFFSET, IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR, IrClassSymbolImpl(ErrorUtils.errorClass),
     Name.special("<error>"), ClassKind.CLASS, DescriptorVisibilities.DEFAULT_VISIBILITY, Modality.FINAL
 ) {
     override var parent: IrDeclarationParent
