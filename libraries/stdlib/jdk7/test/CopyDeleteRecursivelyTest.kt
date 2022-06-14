@@ -16,6 +16,30 @@ import kotlin.test.*
 
 class CopyDeleteRecursivelyTest : AbstractPathTest() {
 
+    private fun withRestrictedWrite(vararg paths: Path, block: () -> Unit) {
+        try {
+            if (paths.all { it.toFile().setWritable(false) }) {
+                block()
+            } else {
+                System.err.println("Couldn't restrict write access")
+            }
+        } finally {
+            paths.forEach { it.toFile().setWritable(true) }
+        }
+    }
+
+    private fun withRestrictedRead(vararg paths: Path, block: () -> Unit) {
+        try {
+            if (paths.all { it.toFile().setReadable(false) }) {
+                block()
+            } else {
+                System.err.println("Couldn't restrict read access")
+            }
+        } finally {
+            paths.forEach { it.toFile().setReadable(true) }
+        }
+    }
+
     @Test
     fun deleteFile() {
         val file = createTempFile()
@@ -48,52 +72,39 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
     @Test
     fun deleteRestrictedRead() {
         val basedir = createTestFiles().cleanupRecursively()
-        val restrictedDir = basedir.resolve("1").toFile()
-        val restrictedFile = basedir.resolve("7.txt").toFile()
-        try {
-            if (restrictedDir.setReadable(false) && restrictedFile.setReadable(false)) {
-                assertFailsWith<java.nio.file.FileSystemException>("Expected incomplete recursive deletion") {
-                    basedir.deleteRecursively()
-                }
-                assertTrue(restrictedDir.exists()) // couldn't read directory entries
-                assertFalse(restrictedFile.exists()) // restricted read allows removal of file
+        val restrictedDir = basedir.resolve("1")
+        val restrictedFile = basedir.resolve("7.txt")
 
-                restrictedDir.setReadable(true)
-                testVisitedFiles(listOf("", "1", "1/2", "1/3", "1/3/4.txt", "1/3/5.txt"), basedir.walkIncludeDirectories(), basedir)
+        withRestrictedRead(restrictedDir, restrictedFile) {
+            assertFailsWith<java.nio.file.FileSystemException>("Expected incomplete recursive deletion") {
                 basedir.deleteRecursively()
-            } else {
-                System.err.println("cannot restrict access")
             }
-        } finally {
-            restrictedDir.setReadable(true)
-            restrictedFile.setReadable(true)
+            assertTrue(restrictedDir.exists()) // couldn't read directory entries
+            assertFalse(restrictedFile.exists()) // restricted read allows removal of file
+
+            restrictedDir.toFile().setReadable(true)
+            testVisitedFiles(listOf("", "1", "1/2", "1/3", "1/3/4.txt", "1/3/5.txt"), basedir.walkIncludeDirectories(), basedir)
+            basedir.deleteRecursively()
         }
     }
 
     @Test
     fun deleteRestrictedWrite() {
         val basedir = createTestFiles().cleanupRecursively()
-        val restrictedEmptyDir = basedir.resolve("6").toFile()
-        val restrictedDir = basedir.resolve("8").toFile()
-        val restrictedFile = basedir.resolve("1/3/5.txt").toFile()
-        try {
-            if (restrictedDir.setWritable(false) && restrictedDir.setWritable(false) && restrictedFile.setWritable(false)) {
-                val error = assertFailsWith<FileSystemException>("Expected incomplete recursive deletion") {
-                    basedir.deleteRecursively()
-                }
-                // test that DirectoryNotEmptyException is not thrown from parent directory
-                assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
+        val restrictedEmptyDir = basedir.resolve("6")
+        val restrictedDir = basedir.resolve("8")
+        val restrictedFile = basedir.resolve("1/3/5.txt")
 
-                assertFalse(restrictedEmptyDir.exists()) // empty directories can be removed without write permission
-                assertTrue(restrictedDir.exists())
-                assertFalse(restrictedFile.exists()) // plain files can be removed without write permission
-            } else {
-                System.err.println("cannot restrict access")
+        withRestrictedWrite(restrictedEmptyDir, restrictedDir, restrictedFile) {
+            val error = assertFailsWith<FileSystemException>("Expected incomplete recursive deletion") {
+                basedir.deleteRecursively()
             }
-        } finally {
-            restrictedEmptyDir.setWritable(true)
-            restrictedDir.setWritable(true)
-            restrictedFile.setWritable(true)
+            // test that DirectoryNotEmptyException is not thrown from parent directory
+            assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
+
+            assertFalse(restrictedEmptyDir.exists()) // empty directories can be removed without write permission
+            assertTrue(restrictedDir.exists())
+            assertFalse(restrictedFile.exists()) // plain files can be removed without write permission
         }
     }
 
@@ -396,20 +407,15 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         val src = createTestFiles().cleanupRecursively()
         val dst = createTempDirectory().cleanupRecursively()
 
-        val restricted = src.resolve("1/3").toFile()
-        if (restricted.setReadable(false)) {
-            try {
-                val error = assertFailsWith<java.nio.file.FileSystemException> {
-                    src.copyToRecursively(dst)
-                }
-                assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
+        val restricted = src.resolve("1/3")
 
-                assertFalse(dst.resolve("1/3").isReadable()) // access permissions are copied
-            } finally {
-                restricted.setReadable(true)
+        withRestrictedRead(restricted) {
+            val error = assertFailsWith<java.nio.file.FileSystemException> {
+                src.copyToRecursively(dst)
             }
-        } else {
-            System.err.println("cannot restrict access")
+            assertIs<java.nio.file.AccessDeniedException>(error.suppressedExceptions.single())
+
+            assertFalse(dst.resolve("1/3").isReadable()) // access permissions are copied
         }
     }
 
@@ -419,21 +425,16 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         val src = createTestFiles().cleanupRecursively()
         val dst = createTempDirectory().cleanupRecursively()
 
-        val restricted = src.resolve("1/3").toFile()
-        if (restricted.setWritable(false)) {
-            try {
-                val error = assertFailsWith<java.nio.file.FileSystemException> {
-                    src.copyToRecursively(dst)
-                }
-                error.suppressedExceptions.forEach {
-                    assertIs<java.nio.file.AccessDeniedException>(it)
-                    assertTrue(it.file.endsWith("4.txt") || it.file.endsWith("5.txt"))
-                }
-            } finally {
-                restricted.setReadable(true)
+        val restricted = src.resolve("1/3")
+
+        withRestrictedWrite(restricted) {
+            val error = assertFailsWith<java.nio.file.FileSystemException> {
+                src.copyToRecursively(dst)
             }
-        } else {
-            System.err.println("cannot restrict access")
+            error.suppressedExceptions.forEach {
+                assertIs<java.nio.file.AccessDeniedException>(it)
+                assertTrue(it.file.endsWith("4.txt") || it.file.endsWith("5.txt"))
+            }
         }
     }
 
@@ -445,30 +446,25 @@ class CopyDeleteRecursivelyTest : AbstractPathTest() {
         src.resolve("1/3/4.txt").writeText("hello")
         src.resolve("7.txt").writeText("hi")
 
-        val restricted = dst.resolve("1/3").toFile()
-        if (restricted.setWritable(false)) {
-            try {
-                assertFailsWith<java.nio.file.FileSystemException> {
-                    src.copyToRecursively(dst) { source, target ->
-                        if (!source.isDirectory() || !target.isDirectory()) source.copyTo(target, overwrite = true)
-                    }
-                }.suppressedExceptions.let { suppressed ->
-                    // restricted to overwrite: "1/3/4.txt", "1/3/5.txt"
-                    assertEquals(2, suppressed.size)
-                    assertTrue { suppressed.all { it is java.nio.file.AccessDeniedException } }
-                }
+        val restricted = dst.resolve("1/3")
 
-                assertNotEquals(src.resolve("1/3/4.txt").readText(), dst.resolve("1/3/4.txt").readText())
-            } finally {
-                restricted.setWritable(true)
+        withRestrictedWrite(restricted) {
+            assertFailsWith<java.nio.file.FileSystemException> {
+                src.copyToRecursively(dst) { source, target ->
+                    if (!source.isDirectory() || !target.isDirectory()) source.copyTo(target, overwrite = true)
+                }
+            }.suppressedExceptions.let { suppressed ->
+                // restricted to overwrite: "1/3/4.txt", "1/3/5.txt"
+                assertEquals(2, suppressed.size)
+                assertTrue { suppressed.all { it is java.nio.file.AccessDeniedException } }
             }
 
-            src.resolve("1/3").deleteRecursively()
-            dst.resolve("1/3").deleteRecursively()
-            compareDirectories(src, dst)
-        } else {
-            System.err.println("cannot restrict access")
+            assertNotEquals(src.resolve("1/3/4.txt").readText(), dst.resolve("1/3/4.txt").readText())
         }
+
+        src.resolve("1/3").deleteRecursively()
+        dst.resolve("1/3").deleteRecursively()
+        compareDirectories(src, dst)
     }
 
     @Test
