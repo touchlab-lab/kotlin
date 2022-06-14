@@ -18,6 +18,7 @@ class NonExportedPackagesTest {
             "kotlin.collections.builders",
             "kotlin.js",
             "kotlin.jvm.internal.unsafe",
+            "kotlin.native",
         ))
     }
 

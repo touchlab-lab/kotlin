@@ -4263,6 +4263,9 @@ public final class kotlin/math/MathKt {
 	public static final fun truncate (F)F
 }
 
+public abstract interface annotation class kotlin/native/FreezingIsDeprecated : java/lang/annotation/Annotation {
+}
+
 public final class kotlin/properties/Delegates {
 	public static final field INSTANCE Lkotlin/properties/Delegates;
 	public final fun notNull ()Lkotlin/properties/ReadWriteProperty;
