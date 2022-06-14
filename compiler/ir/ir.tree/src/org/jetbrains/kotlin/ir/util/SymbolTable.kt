@@ -1138,17 +1138,15 @@ inline fun <T> ReferenceSymbolTable.withReferenceScope(owner: IrDeclaration, blo
 }
 
 val SymbolTable.allUnbound: Set<IrSymbol>
-    get() {
-        val r = mutableSetOf<IrSymbol>()
-        r.addAll(unboundClasses)
-        r.addAll(unboundConstructors)
-        r.addAll(unboundEnumEntries)
-        r.addAll(unboundFields)
-        r.addAll(unboundSimpleFunctions)
-        r.addAll(unboundProperties)
-        r.addAll(unboundTypeAliases)
-        r.addAll(unboundTypeParameters)
-        return r.filter { !it.isBound }.toSet()
+    get() = buildSet {
+        unboundClasses.filterTo(this) { !it.isBound }
+        unboundConstructors.filterTo(this) { !it.isBound }
+        unboundEnumEntries.filterTo(this) { !it.isBound }
+        unboundFields.filterTo(this) { !it.isBound }
+        unboundSimpleFunctions.filterTo(this) { !it.isBound }
+        unboundProperties.filterTo(this) { !it.isBound }
+        unboundTypeAliases.filterTo(this) { !it.isBound }
+        unboundTypeParameters.filterTo(this) { !it.isBound }
     }
 
 @OptIn(ObsoleteDescriptorBasedAPI::class)
