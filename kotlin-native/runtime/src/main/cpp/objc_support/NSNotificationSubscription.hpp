@@ -10,6 +10,7 @@
 #include <functional>
 
 #include "ObjCForward.hpp"
+#include "ObjectPtr.hpp"
 #include "Utils.hpp"
 
 OBJC_FORWARD_DECLARE(NSNotificationCenter);
@@ -23,19 +24,21 @@ public:
     NSNotificationSubscription(NSNotificationCenter* center, NSString* name, std::function<void()> handler) noexcept;
     NSNotificationSubscription(NSString* name, std::function<void()> handler) noexcept;
 
-    NSNotificationSubscription(NSNotificationSubscription&& rhs) noexcept;
-    NSNotificationSubscription& operator=(NSNotificationSubscription&& rhs) noexcept;
+    NSNotificationSubscription(NSNotificationSubscription&&) = default;
+    NSNotificationSubscription& operator=(NSNotificationSubscription&&) = default;
+
+    void swap(NSNotificationSubscription& rhs) noexcept {
+        impl_.swap(rhs.impl_);
+    }
 
     ~NSNotificationSubscription() { reset(); }
 
-    void swap(NSNotificationSubscription& rhs) noexcept;
-
     void reset() noexcept;
-    bool subscribed() const noexcept;
+    bool subscribed() const noexcept { return static_cast<bool>(impl_); }
     explicit operator bool() const noexcept { return subscribed(); }
 
 private:
-    Kotlin_objc_support_NSNotificationSubscriptionImpl* impl_;
+   object_ptr<Kotlin_objc_support_NSNotificationSubscriptionImpl> impl_;
 };
 
 } // namespace kotlin::objc_support

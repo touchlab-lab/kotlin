@@ -5,10 +5,14 @@
 
 #pragma once
 
+#if KONAN_MACOSX || KONAN_IOS || KONAN_TVOS || KONAN_WATCHOS
+
 #include <objc/objc.h>
 
 #ifdef __OBJC__
 #define OBJC_FORWARD_DECLARE(clazz) @class clazz
 #else
 #define OBJC_FORWARD_DECLARE(clazz) using clazz = objc_object
+#endif
+
 #endif

@@ -67,29 +67,9 @@ objc_support::NSNotificationSubscription::NSNotificationSubscription(NSString* n
 
 void objc_support::NSNotificationSubscription::reset() noexcept {
     @autoreleasepool {
-        [impl_ reset];
-        [impl_ release];
-        impl_ = nil;
+        [*impl_ reset];
+        impl_.reset();
     }
-}
-
-bool objc_support::NSNotificationSubscription::subscribed() const noexcept {
-    return impl_ != nil;
-}
-
-objc_support::NSNotificationSubscription::NSNotificationSubscription(NSNotificationSubscription&& rhs) noexcept : impl_(rhs.impl_) {
-    rhs.impl_ = nil;
-}
-
-objc_support::NSNotificationSubscription& objc_support::NSNotificationSubscription::operator=(NSNotificationSubscription&& rhs) noexcept {
-    NSNotificationSubscription tmp(std::move(rhs));
-    swap(tmp);
-    return *this;
-}
-
-void objc_support::NSNotificationSubscription::swap(NSNotificationSubscription& rhs) noexcept {
-    using std::swap;
-    swap(impl_, rhs.impl_);
 }
 
 #endif
