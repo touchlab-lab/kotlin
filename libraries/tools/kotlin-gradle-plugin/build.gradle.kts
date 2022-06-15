@@ -65,7 +65,7 @@ dependencies {
     commonCompileOnly(project(":kotlin-tooling-metadata"))
 
     commonImplementation(project(":kotlin-gradle-plugin-idea"))
-    commonImplementation(project(":kotlin-gradle-plugin-idea-proto"))
+    commonCompileOnly(project(":kotlin-gradle-plugin-idea-proto"))
     commonImplementation(project(":kotlin-util-klib"))
     commonImplementation(project(":native:kotlin-klib-commonizer-api"))
     commonImplementation(project(":kotlin-project-model"))
@@ -84,6 +84,12 @@ dependencies {
     embedded(commonDependency("com.google.guava:guava")) { isTransitive = false }
     embedded(commonDependency("org.jetbrains.teamcity:serviceMessages")) { isTransitive = false }
     embedded(project(":kotlin-tooling-metadata")) { isTransitive = false }
+    embedded(project(":kotlin-gradle-plugin-idea-proto")) { isTransitive = false }
+    embedded("com.google.protobuf:protobuf-java:3.19.4") { because("Required for ':kotlin-gradle-plugin-idea-proto") }
+    embedded("com.google.protobuf:protobuf-kotlin:3.19.4") {
+        because("Required for ':kotlin-gradle-plugin-idea-proto")
+        isTransitive = false
+    }
     embedded("de.undercouch:gradle-download-task:4.1.1")
     embedded("com.github.gundy:semver4j:0.16.4:nodeps") {
         exclude(group = "*")
