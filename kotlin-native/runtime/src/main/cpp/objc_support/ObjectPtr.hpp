@@ -129,7 +129,7 @@ struct hash<kotlin::objc_support::object_ptr<T>> {
     std::size_t operator()(const kotlin::objc_support::object_ptr<T>& value) { return value.impl_.computeHash(); }
 };
 
-// TODO: std::atomic specialization? Can it just be a blanket specialization?
+// TODO: std::atomic specialization?
 
 } // namespace std
 

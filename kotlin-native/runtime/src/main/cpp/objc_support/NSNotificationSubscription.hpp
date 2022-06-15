@@ -27,9 +27,7 @@ public:
     NSNotificationSubscription(NSNotificationSubscription&&) = default;
     NSNotificationSubscription& operator=(NSNotificationSubscription&&) = default;
 
-    void swap(NSNotificationSubscription& rhs) noexcept {
-        impl_.swap(rhs.impl_);
-    }
+    void swap(NSNotificationSubscription& rhs) noexcept { impl_.swap(rhs.impl_); }
 
     ~NSNotificationSubscription() { reset(); }
 
@@ -38,7 +36,7 @@ public:
     explicit operator bool() const noexcept { return subscribed(); }
 
 private:
-   object_ptr<Kotlin_objc_support_NSNotificationSubscriptionImpl> impl_;
+    object_ptr<Kotlin_objc_support_NSNotificationSubscriptionImpl> impl_;
 };
 
 } // namespace kotlin::objc_support
