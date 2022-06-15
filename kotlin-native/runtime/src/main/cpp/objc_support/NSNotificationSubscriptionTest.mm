@@ -109,6 +109,71 @@ TEST_F(NSNotificationSubscriptionTest, PostAfterDtor) {
     testing::Mock::VerifyAndClearExpectations(&handler);
 }
 
+TEST_F(NSNotificationSubscriptionTest, MoveConstruct) {
+    constexpr const char* name = "NOTIFICATION_NAME";
+    testing::StrictMock<testing::MockFunction<void()>> handler;
+
+    auto subscription = subscribe(name, handler.AsStdFunction());
+    objc_support::NSNotificationSubscription otherSubscription(std::move(subscription));
+    EXPECT_TRUE(otherSubscription.subscribed());
+    EXPECT_TRUE(otherSubscription);
+    EXPECT_FALSE(subscription.subscribed());
+    EXPECT_FALSE(subscription);
+
+    EXPECT_CALL(handler, Call());
+    post(name);
+    testing::Mock::VerifyAndClearExpectations(&handler);
+}
+
+TEST_F(NSNotificationSubscriptionTest, MoveAssign) {
+    constexpr const char* name = "NOTIFICATION_NAME";
+    constexpr const char* otherName = "NOTIFICATION_NAME_OTHER";
+    testing::StrictMock<testing::MockFunction<void()>> handler;
+    testing::StrictMock<testing::MockFunction<void()>> otherHandler;
+
+    auto subscription = subscribe(name, handler.AsStdFunction());
+    auto otherSubscription = subscribe(otherName, otherHandler.AsStdFunction());
+
+    otherSubscription = std::move(subscription);
+    EXPECT_TRUE(otherSubscription.subscribed());
+    EXPECT_TRUE(otherSubscription);
+    EXPECT_FALSE(subscription.subscribed());
+    EXPECT_FALSE(subscription);
+
+    EXPECT_CALL(handler, Call());
+    post(name);
+    testing::Mock::VerifyAndClearExpectations(&handler);
+
+    EXPECT_CALL(otherHandler, Call());
+    post(otherName);
+    testing::Mock::VerifyAndClearExpectations(&otherHandler);
+}
+
+TEST_F(NSNotificationSubscriptionTest, SwapAndReset) {
+    constexpr const char* name = "NOTIFICATION_NAME";
+    constexpr const char* otherName = "NOTIFICATION_NAME_OTHER";
+    testing::StrictMock<testing::MockFunction<void()>> handler;
+    testing::StrictMock<testing::MockFunction<void()>> otherHandler;
+
+    auto subscription = subscribe(name, handler.AsStdFunction());
+    auto otherSubscription = subscribe(otherName, otherHandler.AsStdFunction());
+
+    subscription.swap(otherSubscription);
+    subscription.reset();
+    EXPECT_TRUE(otherSubscription.subscribed());
+    EXPECT_TRUE(otherSubscription);
+    EXPECT_FALSE(subscription.subscribed());
+    EXPECT_FALSE(subscription);
+
+    EXPECT_CALL(handler, Call());
+    post(name);
+    testing::Mock::VerifyAndClearExpectations(&handler);
+
+    EXPECT_CALL(otherHandler, Call());
+    post(otherName);
+    testing::Mock::VerifyAndClearExpectations(&otherHandler);
+}
+
 TEST_F(NSNotificationSubscriptionTest, DestroyHandlerAfterReset) {
     constexpr const char* name = "NOTIFICATION_NAME";
     testing::StrictMock<testing::MockFunction<DestructorHook>> destructorHook;
@@ -124,7 +189,20 @@ TEST_F(NSNotificationSubscriptionTest, DestroyHandlerAfterReset) {
     testing::Mock::VerifyAndClearExpectations(&destructorHook);
 }
 
-// TODO: destruction of handler.
-// TODO: move semantics.
+TEST_F(NSNotificationSubscriptionTest, DestroyHandlerAfterDtor) {
+    constexpr const char* name = "NOTIFICATION_NAME";
+    testing::StrictMock<testing::MockFunction<DestructorHook>> destructorHook;
+    auto targetOwner = std_support::make_shared<WithDestructorHook>(destructorHook.AsStdFunction());
+    auto* target = targetOwner.get();
+
+    {
+        auto subscription = subscribe(name, [targetOwner] { /* nothing to do */ });
+        targetOwner.reset();
+        // Only `subscription` owns `targetOwner` now.
+
+        EXPECT_CALL(destructorHook, Call(target));
+    }
+    testing::Mock::VerifyAndClearExpectations(&destructorHook);
+}
 
 #endif
