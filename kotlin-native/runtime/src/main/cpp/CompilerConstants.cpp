@@ -13,7 +13,7 @@ using namespace kotlin;
 using Kotlin_getSourceInfo_FunctionType = int(*)(void * /*addr*/, SourceInfo* /*result*/, int /*result_size*/);
 
 /**
- * There are two ways, how compiler can define variables for runtime usage. This one, and the other one with details in source file.
+ * There are two ways, how compiler can define variables for runtime usage. This one, and the other one with details in header file.
  *
  * This is one is variables defined by overrideRuntimeGlobals in IrToBitcode.kt. They are *not* eligible for runtime optimizations,
  * but can be changed after compiling caches. So use this way for variables, which will be rarely accessed.
