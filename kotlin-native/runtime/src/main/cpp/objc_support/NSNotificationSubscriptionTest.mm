@@ -144,7 +144,7 @@ TEST_F(NSNotificationSubscriptionTest, MoveAssign) {
     post(name);
     testing::Mock::VerifyAndClearExpectations(&handler);
 
-    EXPECT_CALL(otherHandler, Call());
+    EXPECT_CALL(otherHandler, Call()).Times(0);
     post(otherName);
     testing::Mock::VerifyAndClearExpectations(&otherHandler);
 }
@@ -169,7 +169,7 @@ TEST_F(NSNotificationSubscriptionTest, SwapAndReset) {
     post(name);
     testing::Mock::VerifyAndClearExpectations(&handler);
 
-    EXPECT_CALL(otherHandler, Call());
+    EXPECT_CALL(otherHandler, Call()).Times(0);
     post(otherName);
     testing::Mock::VerifyAndClearExpectations(&otherHandler);
 }

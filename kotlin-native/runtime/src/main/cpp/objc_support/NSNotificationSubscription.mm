@@ -78,10 +78,7 @@ bool objc_support::NSNotificationSubscription::subscribed() const noexcept {
 }
 
 objc_support::NSNotificationSubscription::NSNotificationSubscription(NSNotificationSubscription&& rhs) noexcept : impl_(rhs.impl_) {
-    @autoreleasepool {
-        [rhs.impl_ release];
-        rhs.impl_ = nil;
-    }
+    rhs.impl_ = nil;
 }
 
 objc_support::NSNotificationSubscription& objc_support::NSNotificationSubscription::operator=(NSNotificationSubscription&& rhs) noexcept {
