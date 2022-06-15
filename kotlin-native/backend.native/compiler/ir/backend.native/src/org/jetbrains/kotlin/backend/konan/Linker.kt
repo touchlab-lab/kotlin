@@ -1,7 +1,9 @@
 package org.jetbrains.kotlin.backend.konan
 
+import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.konan.serialization.ClassFieldsSerializer
 import org.jetbrains.kotlin.backend.konan.serialization.InlineFunctionBodyReferenceSerializer
+import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor
 import org.jetbrains.kotlin.konan.KonanExternalToolFailure
 import org.jetbrains.kotlin.konan.exec.Command
 import org.jetbrains.kotlin.konan.file.File
@@ -46,6 +48,7 @@ internal class Linker(val context: Context) {
     private val debug = context.config.debug || context.config.lightDebug
 
     fun link(objectFiles: List<ObjectFile>) {
+        val pluginExtensions = PreLinkExtension.getInstances(context.config.project)
         val nativeDependencies = context.llvm.nativeDependenciesToLink
 
         val includedBinariesLibraries = if (context.config.produce.isCache) {
@@ -57,12 +60,24 @@ internal class Linker(val context: Context) {
 
         val libraryProvidedLinkerFlags = context.llvm.allNativeDependencies.map { it.linkerOpts }.flatten()
 
+        val preLinkContext = NativePreLinkContext(
+            config = context.config,
+            backendContext = context,
+            objcExportNamer = context.objCExport.namer,
+        )
+
+        val preLinkResults = pluginExtensions.mapNotNull { extension ->
+            extension.process(preLinkContext)
+        }
+        val preLinkProvidedObjectFiles = preLinkResults.map { it.additionalObjectFiles }.flatten()
+        val preLinkProvidedLinkerFlags = preLinkResults.map { it.additionalLinkerFlags }.flatten()
+
         if (context.config.produce.isCache) {
             context.config.outputFiles.tempCacheDirectory!!.mkdirs()
             saveAdditionalInfoForCache()
         }
 
-        runLinker(objectFiles, includedBinaries, libraryProvidedLinkerFlags)
+        runLinker(objectFiles + preLinkProvidedObjectFiles, includedBinaries, libraryProvidedLinkerFlags + preLinkProvidedLinkerFlags)
 
         renameOutput()
     }
