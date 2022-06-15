@@ -8,6 +8,7 @@ package org.jetbrains.kotlin.ir.backend.js.ic
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.backend.js.transformers.irToJs.CrossModuleReferences
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.util.DumpIrTreeVisitor
 import org.jetbrains.kotlin.js.config.JSConfigurationKeys
 import org.jetbrains.kotlin.library.KotlinLibrary
@@ -84,6 +85,8 @@ internal fun IrElement.irElementHashForIC() = HashCalculatorForIC().also {
         ), data = ""
     )
 }.finalize()
+
+internal fun IrClass.irClassSymbolHashForIC() = HashCalculatorForIC().apply { update(symbol.toString()) }.finalize()
 
 internal fun String.stringHashForIC() = HashCalculatorForIC().also { it.update(this) }.finalize()
 

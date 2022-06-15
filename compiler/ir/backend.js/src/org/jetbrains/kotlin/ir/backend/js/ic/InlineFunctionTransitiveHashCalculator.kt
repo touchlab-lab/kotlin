@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.ir.util.render
 import org.jetbrains.kotlin.ir.util.resolveFakeOverride
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import org.jetbrains.kotlin.ir.visitors.acceptVoid
 
 
@@ -31,7 +32,7 @@ class InlineFunctionTransitiveHashCalculator {
         get() = idSignatureTransitiveHashes
 
     private inner class FlatHashCalculator : IrElementVisitorVoid {
-        override fun visitElement(element: IrElement) = element.acceptChildren(this, null)
+        override fun visitElement(element: IrElement) = element.acceptChildrenVoid(this)
 
         override fun visitSimpleFunction(declaration: IrSimpleFunction) {
             if (declaration.isInline) {
@@ -47,7 +48,7 @@ class InlineFunctionTransitiveHashCalculator {
                 }
             }
             // go deeper since local inline special declarations (like a reference adaptor) may appear
-            declaration.acceptChildren(this, null)
+            declaration.acceptChildrenVoid(this)
         }
     }
 
