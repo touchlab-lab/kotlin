@@ -63,6 +63,7 @@ objc_support::NSNotificationSubscription::NSNotificationSubscription(NSString* n
                                                                                          handler:std::move(handler)]) {}
 
 void objc_support::NSNotificationSubscription::reset() noexcept {
+    [impl_ reset];
     impl_ = nil;
 }
 
