@@ -21,4 +21,4 @@ private:
     AppStateTracking& appStateTracking_;
 };
 
-}
+} // namespace kotlin::mm
