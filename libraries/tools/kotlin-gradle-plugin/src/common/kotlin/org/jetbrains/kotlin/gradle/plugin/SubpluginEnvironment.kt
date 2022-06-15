@@ -1,6 +1,7 @@
 package org.jetbrains.kotlin.gradle.plugin
 
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
@@ -57,10 +58,11 @@ class SubpluginEnvironment(
                 options
             }
 
-            val configureKotlinTask: (KotlinCompile<*>) -> Unit = {
+            val configureKotlinTask: (Task) -> Unit = {
                 when (it) {
                     is AbstractKotlinCompile<*> -> it.pluginOptions.add(compilerOptions)
                     is KotlinNativeCompile -> it.compilerPluginOptions.addPluginArgument(compilerOptions.get())
+                    is AbstractKotlinNativeCompile<*, *> -> it.compilerPluginOptions.addPluginArgument(compilerOptions.get())
                     else -> error("Unexpected task ${it.name}, class: ${it.javaClass}")
                 }
             }
@@ -72,6 +74,12 @@ class SubpluginEnvironment(
                     if (it is JsIrBinary) {
                         it.linkTask.configure(configureKotlinTask)
                     }
+                }
+            }
+
+            if (kotlinCompilation is KotlinNativeCompilation) {
+                kotlinCompilation.target.binaries.all {
+                    it.linkTaskProvider.configure(configureKotlinTask)
                 }
             }
 
