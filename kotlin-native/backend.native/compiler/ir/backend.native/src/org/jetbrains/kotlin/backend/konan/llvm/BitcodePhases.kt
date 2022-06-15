@@ -390,9 +390,12 @@ internal val produceOutputPhase = namedUnitPhase(
 
 internal val removeRedundantSafepointsPhase = makeKonanModuleOpPhase(
         name = "RemoveRedundantSafepoints",
-        description = "Leave only one safepoint in a basic block",
+        description = "Remove function prologue safepoints inlined to another function",
         op = { context, _ ->
-            RemoveRedundantSafepointsPass(context).runOnModule(context.llvmModule!!)
+            RemoveRedundantSafepointsPass(context).runOnModule(
+                    module = context.llvmModule!!,
+                    isSafepointInliningAllowed = context.shouldInlineSafepoints()
+            )
         }
 )
 
