@@ -729,6 +729,7 @@ class HierarchicalMppIT : KGPBaseTest() {
             }
 
             val configCacheIncompatibleTasks = listOf(
+                ":generateProjectStructureMetadata",
                 ":transformCommonMainDependenciesMetadata",
             )
 
