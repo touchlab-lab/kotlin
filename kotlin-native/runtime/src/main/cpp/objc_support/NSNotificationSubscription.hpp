@@ -35,7 +35,6 @@ public:
     explicit operator bool() const noexcept { return subscribed(); }
 
 private:
-    // TODO: Test that this is indeed deleted.
     Kotlin_objc_support_NSNotificationSubscriptionImpl* impl_;
 };
 

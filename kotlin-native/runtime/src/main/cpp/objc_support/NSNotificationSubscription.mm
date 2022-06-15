@@ -9,11 +9,14 @@
 
 #import <Foundation/NSNotification.h>
 
+#if defined(__has_feature) && __has_feature(objc_arc)
+#error "Assumes that ARC is not used"
+#endif
+
 using namespace kotlin;
 
 @interface Kotlin_objc_support_NSNotificationSubscriptionImpl : NSObject {
     NSNotificationCenter* center_;
-    // TODO: Test that this is properly destructed.
     std::function<void()> handler_;
 }
 
@@ -63,8 +66,11 @@ objc_support::NSNotificationSubscription::NSNotificationSubscription(NSString* n
                                                                                          handler:std::move(handler)]) {}
 
 void objc_support::NSNotificationSubscription::reset() noexcept {
-    [impl_ reset];
-    impl_ = nil;
+    @autoreleasepool {
+        [impl_ reset];
+        [impl_ release];
+        impl_ = nil;
+    }
 }
 
 bool objc_support::NSNotificationSubscription::subscribed() const noexcept {
@@ -72,7 +78,10 @@ bool objc_support::NSNotificationSubscription::subscribed() const noexcept {
 }
 
 objc_support::NSNotificationSubscription::NSNotificationSubscription(NSNotificationSubscription&& rhs) noexcept : impl_(rhs.impl_) {
-    rhs.impl_ = nil;
+    @autoreleasepool {
+        [rhs.impl_ release];
+        rhs.impl_ = nil;
+    }
 }
 
 objc_support::NSNotificationSubscription& objc_support::NSNotificationSubscription::operator=(NSNotificationSubscription&& rhs) noexcept {

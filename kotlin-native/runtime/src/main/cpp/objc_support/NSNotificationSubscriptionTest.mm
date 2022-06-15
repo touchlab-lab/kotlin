@@ -13,7 +13,27 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include "std_support/Memory.hpp"
+
 using namespace kotlin;
+
+namespace {
+
+class WithDestructorHook;
+
+using DestructorHook = void(WithDestructorHook*);
+
+class WithDestructorHook : private Pinned {
+public:
+    explicit WithDestructorHook(std::function<DestructorHook> hook) : hook_(std::move(hook)) {}
+
+    ~WithDestructorHook() { hook_(this); }
+
+private:
+    std::function<DestructorHook> hook_;
+};
+
+} // namespace
 
 class NSNotificationSubscriptionTest : public testing::Test {
 public:
@@ -80,12 +100,28 @@ TEST_F(NSNotificationSubscriptionTest, PostAfterDtor) {
     testing::StrictMock<testing::MockFunction<void()>> handler;
 
     {
+        // Create and destroy subscription object.
         subscribe(name, handler.AsStdFunction());
     }
 
     EXPECT_CALL(handler, Call()).Times(0);
     post(name);
     testing::Mock::VerifyAndClearExpectations(&handler);
+}
+
+TEST_F(NSNotificationSubscriptionTest, DestroyHandlerAfterReset) {
+    constexpr const char* name = "NOTIFICATION_NAME";
+    testing::StrictMock<testing::MockFunction<DestructorHook>> destructorHook;
+    auto targetOwner = std_support::make_shared<WithDestructorHook>(destructorHook.AsStdFunction());
+    auto* target = targetOwner.get();
+
+    auto subscription = subscribe(name, [targetOwner] { /* nothing to do */ });
+    targetOwner.reset();
+    // Only `subscription` owns `targetOwner` now.
+
+    EXPECT_CALL(destructorHook, Call(target));
+    subscription.reset();
+    testing::Mock::VerifyAndClearExpectations(&destructorHook);
 }
 
 // TODO: destruction of handler.
