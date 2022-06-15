@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.gradle.utils
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ArtifactCollection
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.result.DependencyResult
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
@@ -22,19 +23,41 @@ const val RUNTIME_ONLY = "runtimeOnly"
 const val RUNTIME = "runtime"
 internal const val INTRANSITIVE = "intransitive"
 
+private class UnserializableLazy<T: Any>(
+    private val initializer: () -> T
+) : Lazy<T> {
+    @Volatile
+    @Transient
+    private var _value: T? = null
+    override fun isInitialized(): Boolean = _value != null
+    override val value get(): T {
+        val v1 = _value
+        if (v1 != null) return v1
+
+        return synchronized(this) {
+            val v2 = _value
+            if (v2 == null) {
+                 initializer().also { _value = it }
+            } else {
+                v2
+            }
+        }
+    }
+}
+
 /**
  * Gradle Configuration Cache-friendly representation of resolved Configuration
  */
 internal class ResolvedDependencyGraph
 private constructor (
-    val files: FileCollection,
     private val graphRootProvider: Provider<ResolvedComponentResult>,
-    private val artifactsProvider: Provider<Set<ResolvedArtifactResult>>
+    private val artifactCollection: ArtifactCollection
 ) {
     val root get() = graphRootProvider.get()
-    val artifacts get() = artifactsProvider.get()
+    val files: FileCollection get() = artifactCollection.artifactFiles
+    val artifacts get() = artifactCollection.artifacts
 
-    val artifactsByComponentId by lazy { artifacts.groupBy { it.id.componentIdentifier } }
+    private val artifactsByComponentId by UnserializableLazy { artifacts.groupBy { it.id.componentIdentifier } }
 
     val allDependencies: List<DependencyResult> get() {
         fun DependencyResult.allDependenciesRecursive(): List<DependencyResult> =
@@ -54,9 +77,8 @@ private constructor (
 
     companion object {
         operator fun invoke(project: Project, configuration: Configuration) = ResolvedDependencyGraph(
-            files = project.files(configuration),
             graphRootProvider = configuration.incoming.resolutionResult.let { rr -> project.provider { rr.root } },
-            artifactsProvider = configuration.incoming.artifacts.let { collection -> project.provider { collection.artifacts } }
+            artifactCollection = configuration.incoming.artifacts
         )
     }
 }
