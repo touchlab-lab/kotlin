@@ -235,7 +235,7 @@ open class KtLightClassForFacadeImpl constructor(
             val sources = KotlinAsJavaSupport.getInstance(project).findFilesForFacade(fqName, searchScope)
                 .filterNot { it.isCompiled }
 
-            if (sources.isEmpty()) return null
+            if (sources.isEmpty() || sources.any { it.isScript() }) return null
 
             val stubProvider = LightClassDataProviderForFileFacade.ByProjectSource(project, fqName, searchScope)
             val stubValue = CachedValuesManager.getManager(project)
@@ -244,7 +244,7 @@ open class KtLightClassForFacadeImpl constructor(
             val manager = PsiManager.getInstance(project)
 
             return LightClassGenerationSupport.getInstance(project).run {
-                if (useUltraLightClasses) createUltraLightClassForFacade(manager, fqName, stubValue, sources)
+                if (canCreateUltraLightClassForFacade(sources)) createUltraLightClassForFacade(manager, fqName, stubValue, sources)
                     ?: error("Unable to create UL class for facade: $fqName for ${sources.joinToString { it.virtualFilePath }}")
                 else KtLightClassForFacadeImpl(manager, fqName, stubValue, sources)
             }

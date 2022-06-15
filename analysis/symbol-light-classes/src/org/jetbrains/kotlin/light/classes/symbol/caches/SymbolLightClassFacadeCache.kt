@@ -32,7 +32,7 @@ class SymbolLightClassFacadeCache(private val project: Project) {
         ktFiles: List<KtFile>,
         facadeClassFqName: FqName,
     ): KtLightClassForFacade? {
-        if (ktFiles.isEmpty()) return null
+        if (ktFiles.isEmpty() || ktFiles.any { it.isScript() }) return null
         val key = FacadeKey(facadeClassFqName, ktFiles.toSet())
         return cache.getOrPut(key) {
             getOrCreateFirLightFacadeNoCache(ktFiles, facadeClassFqName)
