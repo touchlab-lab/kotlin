@@ -25903,6 +25903,12 @@ public class NativeCodegenBoxTestGenerated extends AbstractNativeCodegenBoxTest 
             }
 
             @Test
+            @TestMetadata("prettyToString.kt")
+            public void testPrettyToString() throws Exception {
+                runTest("compiler/testData/codegen/box/objects/prettyToString.kt");
+            }
+
+            @Test
             @TestMetadata("privateExtensionFromInitializer_kt4543.kt")
             public void testPrivateExtensionFromInitializer_kt4543() throws Exception {
                 runTest("compiler/testData/codegen/box/objects/privateExtensionFromInitializer_kt4543.kt");
