@@ -63,7 +63,7 @@ internal class Linker(val context: Context) {
         val preLinkContext = NativePreLinkContext(
             config = context.config,
             backendContext = context,
-            objcExportNamer = context.objCExport.namer,
+            objcExportNamer = context.objCExport.namerOrNull,
         )
 
         val preLinkResults = pluginExtensions.mapNotNull { extension ->

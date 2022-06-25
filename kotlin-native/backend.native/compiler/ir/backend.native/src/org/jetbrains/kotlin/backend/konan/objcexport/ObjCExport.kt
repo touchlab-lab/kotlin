@@ -78,6 +78,9 @@ internal class ObjCExport(val context: Context, symbolTable: SymbolTable) {
 
     lateinit var namer: ObjCExportNamer
 
+    val namerOrNull: ObjCExportNamer?
+        get() = if (this::namer.isInitialized) namer else null
+
     internal fun generate(codegen: CodeGenerator) {
         if (!target.family.isAppleFamily) return
 

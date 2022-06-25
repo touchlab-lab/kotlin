@@ -26,11 +26,11 @@ data class PreLinkResult(
 interface PreLinkContext {
     val config: KonanConfig
     val backendContext: CommonBackendContext
-    val objcExportNamer: ObjCExportNamer
+    val objcExportNamer: ObjCExportNamer?
 }
 
 internal class NativePreLinkContext(
     override val config: KonanConfig,
     override val backendContext: CommonBackendContext,
-    override val objcExportNamer: ObjCExportNamer,
+    override val objcExportNamer: ObjCExportNamer?,
 ) : PreLinkContext
