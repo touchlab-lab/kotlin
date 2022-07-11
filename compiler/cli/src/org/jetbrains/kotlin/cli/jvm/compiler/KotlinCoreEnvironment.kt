@@ -165,7 +165,7 @@ class KotlinCoreEnvironment private constructor(
 
         fun registerExtensionsFromPlugins(configuration: CompilerConfiguration) {
             if (!extensionRegistered) {
-                registerPluginExtensionPoints(project)
+                registerPluginExtensionPoints(project, configuration)
                 registerExtensionsFromPlugins(project, configuration)
                 extensionRegistered = true
             }
@@ -623,7 +623,7 @@ class KotlinCoreEnvironment private constructor(
 
         @JvmStatic
         @Suppress("MemberVisibilityCanPrivate") // made public for CLI Android Lint
-        fun registerPluginExtensionPoints(project: MockProject) {
+        fun registerPluginExtensionPoints(project: MockProject, configuration: CompilerConfiguration) {
             ExpressionCodegenExtension.registerExtensionPoint(project)
             SyntheticResolveExtension.registerExtensionPoint(project)
             SyntheticJavaResolveExtension.registerExtensionPoint(project)
@@ -646,6 +646,11 @@ class KotlinCoreEnvironment private constructor(
             DescriptorSerializerPlugin.registerExtensionPoint(project)
             FirExtensionRegistrarAdapter.registerExtensionPoint(project)
             TypeAttributeTranslatorExtension.registerExtensionPoint(project)
+
+            val additionalExtensionDescriptors = configuration.getList(CLIConfigurationKeys.ADDITIONAL_EXTENSION_DESCRIPTORS)
+            for (descriptor in additionalExtensionDescriptors) {
+                descriptor.registerExtensionPoint(project)
+            }
         }
 
         internal fun registerExtensionsFromPlugins(project: MockProject, configuration: CompilerConfiguration) {

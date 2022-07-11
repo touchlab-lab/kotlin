@@ -20,6 +20,7 @@ import org.jetbrains.kotlin.backend.common.phaser.PhaseConfig;
 import org.jetbrains.kotlin.cli.common.config.ContentRoot;
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector;
 import org.jetbrains.kotlin.config.CompilerConfigurationKey;
+import org.jetbrains.kotlin.extensions.ProjectExtensionDescriptor;
 
 import java.io.File;
 import java.util.List;
@@ -62,6 +63,9 @@ public class CLIConfigurationKeys {
     // used in FIR IDE uast tests
     public static final CompilerConfigurationKey<File> PATH_TO_KOTLIN_COMPILER_JAR =
             CompilerConfigurationKey.create("jar of Kotlin compiler in Kotlin plugin");
+
+    public static final CompilerConfigurationKey<List<ProjectExtensionDescriptor<?>>> ADDITIONAL_EXTENSION_DESCRIPTORS =
+            CompilerConfigurationKey.create("additional extension descriptors to register");
 
     private CLIConfigurationKeys() {
     }

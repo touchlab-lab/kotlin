@@ -483,6 +483,14 @@ open class KotlinNativeTargetConfigurator<T : KotlinNativeTarget> : AbstractKotl
                         .configurations
                         .getByName(compilation.pluginConfigurationName)
                 }
+
+                (compilation.target as? KotlinNativeTarget)?.binaries?.forEach { binary ->
+                    binary.linkTaskProvider.configure {
+                        it.compilerPluginClasspath = project
+                            .configurations
+                            .getByName(compilation.pluginConfigurationName)
+                    }
+                }
             }
         }
 
